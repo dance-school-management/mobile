@@ -4,8 +4,8 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "dev": "cross-env EXPO_NO_DOTENV=1 expo start",
-    "start": "cross-env EXPO_NO_DOTENV=1 expo start",
+    "dev": "cross-env EXPO_NO_DOTENV=1 expo start --tunnel",
+    "start": "cross-env EXPO_NO_DOTENV=1 expo start --tunnel",
     "prebuild": "cross-env EXPO_NO_DOTENV=1 pnpm expo prebuild",
     "android": "cross-env EXPO_NO_DOTENV=1 expo run:android",
     "ios": "cross-env EXPO_NO_DOTENV=1 expo run:ios",
