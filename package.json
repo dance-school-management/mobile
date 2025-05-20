@@ -4,8 +4,8 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "dev": "cross-env EXPO_NO_DOTENV=1 expo start",
-    "start": "cross-env EXPO_NO_DOTENV=1 expo start",
+    "dev": "cross-env EXPO_NO_DOTENV=1 expo start --tunnel",
+    "start": "cross-env EXPO_NO_DOTENV=1 expo start --tunnel",
     "prebuild": "cross-env EXPO_NO_DOTENV=1 pnpm expo prebuild",
     "android": "cross-env EXPO_NO_DOTENV=1 expo run:android",
     "ios": "cross-env EXPO_NO_DOTENV=1 expo run:ios",
@@ -102,7 +102,8 @@
     "react-native-screens": "~4.4.0",
     "react-native-svg": "~15.8.0",
     "react-native-web": "~0.19.13",
-    "tailwind-variants": "^0.2.1"
+    "tailwind-variants": "^0.2.1",
+    "zod": "^3.25.7"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
