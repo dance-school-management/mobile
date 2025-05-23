@@ -7,7 +7,8 @@ import {
   TicketsIcon,
   CalendarIcon,
   ChartColumnIcon,
-  NotebookTextIcon
+  NotebookTextIcon,
+  User
 } from "lucide-react-native";
 import { router, usePathname } from "expo-router";
 
@@ -123,6 +124,23 @@ const CustomDrawerContent = (props) => {
           router.push("/contact");
         }}
       />
+      <DrawerItem
+        icon={({ size }) => (
+          <User
+            size={size}
+            color={pathname == "/instructors" ? "#fff" : "#000"}
+          />
+        )}
+        label={"Our instructors"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == "/instructors" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname == "/instructors" ? "#333" : "#fff" }}
+        onPress={() => {
+          router.push("/instructors");
+        }}
+      />
     </DrawerContentScrollView>
   );
 };
@@ -135,6 +153,7 @@ export default function Layout() {
       <Drawer.Screen name="progress" options={{ headerShown: true }} />
       <Drawer.Screen name="contact" options={{ headerShown: true }} />
       <Drawer.Screen name="tickets" options={{ headerShown: true }} />
+      <Drawer.Screen name="instructors" options={{ headerShown: true }} />
     </Drawer>
   );
 }
