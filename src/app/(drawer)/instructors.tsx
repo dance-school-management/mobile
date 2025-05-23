@@ -46,12 +46,7 @@ const instructors = [
     surname: 'Tadeusz',
     email: 'ttadeusz@gmail.com',
     classesConducted: 500,
-    specializations: [
-      'Jazz',
-      'Swing Dance',
-      'Belly dance',
-      'Ballet'
-    ],
+    specializations: ['Jazz', 'Swing Dance', 'Belly dance', 'Ballet'],
   },
 ];
 
@@ -71,10 +66,10 @@ export default function Page() {
               {' '}
               {/* ZMIENIĆ HREF NA WIDOK POJEDYNCZEGO PROFILU */}
               <HStack
-                className="justify-between items-center border-black border p-2 rounded-md"
+                className="justify-between items-center bg-white rounded-md"
                 key={instructor.id}
               >
-                <HStack space="md">
+                <HStack space="md" className="p-2">
                   <Avatar className="bg-primary-500">
                     <AvatarFallbackText>
                       {instructor.name} {instructor.surname}
@@ -98,6 +93,7 @@ export default function Page() {
                           variant="solid"
                           action="info"
                           size="md"
+                          className="rounded-md"
                         >
                           <BadgeText>{spec}</BadgeText>
                         </Badge>
