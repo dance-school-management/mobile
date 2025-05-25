@@ -1,18 +1,20 @@
-import { StyleSheet } from "react-native";
-import React, { useEffect } from "react";
-import { Drawer } from "expo-router/drawer";
-import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
+import { StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { Drawer } from 'expo-router/drawer';
+import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import {
   HomeIcon,
   TicketsIcon,
   CalendarIcon,
   ChartColumnIcon,
   NotebookTextIcon,
-  User
-} from "lucide-react-native";
-import { router, usePathname } from "expo-router";
+  UserRoundSearch,
+} from 'lucide-react-native';
+import { router, usePathname } from 'expo-router';
 
-import { Button, Text, View } from "@/components/ui";
+import { User } from 'lucide-react-native';
+
+import { Button, Text, View } from '@/components/ui';
 
 const CustomDrawerContent = (props) => {
   const pathname = usePathname();
@@ -35,110 +37,131 @@ const CustomDrawerContent = (props) => {
           <Text style={styles.userEmail}>john@email.com</Text>
           <Button
             onPress={() => {
-              router.push("/");
-            }}><Text>Logout</Text></Button>
+              router.push('/');
+            }}
+          >
+            <Text>Logout</Text>
+          </Button>
         </View>
       </View>
       <DrawerItem
         icon={({ size }) => (
-          <HomeIcon
-            size={size}
-            color={pathname == "/feed" ? "#fff" : "#000"}
-          />
+          <HomeIcon size={size} color={pathname == '/feed' ? '#fff' : '#000'} />
         )}
         label="Home"
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/feed" ? "#fff" : "#000" },
+          { color: pathname == '/feed' ? '#fff' : '#000' },
         ]}
-        style={{ backgroundColor: pathname == "/feed" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == '/feed' ? '#333' : '#fff' }}
         onPress={() => {
-          router.push("/(drawer)/(tabs)/feed");
+          router.push('/(drawer)/(tabs)/feed');
         }}
       />
       <DrawerItem
         icon={({ size }) => (
           <TicketsIcon
             size={size}
-            color={pathname == "/tickets" ? "#fff" : "#000"}
+            color={pathname == '/tickets' ? '#fff' : '#000'}
           />
         )}
         label="My Tickets"
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/tickets" ? "#fff" : "#000" },
+          { color: pathname == '/tickets' ? '#fff' : '#000' },
         ]}
-        style={{ backgroundColor: pathname == "/tickets" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == '/tickets' ? '#333' : '#fff' }}
         onPress={() => {
-          router.push("/(drawer)/(tabs)/tickets");
+          router.push('/(drawer)/(tabs)/tickets');
         }}
       />
       <DrawerItem
         icon={({ color, size }) => (
           <CalendarIcon
             size={size}
-            color={pathname == "/schedule" ? "#fff" : "#000"}
+            color={pathname == '/schedule' ? '#fff' : '#000'}
           />
         )}
-        label={"Schedule"}
+        label={'Schedule'}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/schedule" ? "#fff" : "#000" },
+          { color: pathname == '/schedule' ? '#fff' : '#000' },
         ]}
-        style={{ backgroundColor: pathname == "/schedule" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == '/schedule' ? '#333' : '#fff' }}
         onPress={() => {
-          router.push("/schedule");
+          router.push('/schedule');
         }}
       />
       <DrawerItem
         icon={({ size }) => (
           <ChartColumnIcon
             size={size}
-            color={pathname == "/progress" ? "#fff" : "#000"}
+            color={pathname == '/progress' ? '#fff' : '#000'}
           />
         )}
-        label={"My progress"}
+        label={'My progress'}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/progress" ? "#fff" : "#000" },
+          { color: pathname == '/progress' ? '#fff' : '#000' },
         ]}
-        style={{ backgroundColor: pathname == "/progress" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == '/progress' ? '#333' : '#fff' }}
         onPress={() => {
-          router.push("/progress");
+          router.push('/progress');
         }}
       />
       <DrawerItem
         icon={({ size }) => (
           <NotebookTextIcon
             size={size}
-            color={pathname == "/contact" ? "#fff" : "#000"}
+            color={pathname == '/contact' ? '#fff' : '#000'}
           />
         )}
-        label={"Contact"}
+        label={'Contact'}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/contact" ? "#fff" : "#000" },
+          { color: pathname == '/contact' ? '#fff' : '#000' },
         ]}
-        style={{ backgroundColor: pathname == "/contact" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == '/contact' ? '#333' : '#fff' }}
         onPress={() => {
-          router.push("/contact");
+          router.push('/contact');
+        }}
+      />
+      <DrawerItem
+        icon={({ size }) => (
+          <UserRoundSearch
+            size={size}
+            color={pathname == '/instructor_profile' ? '#fff' : '#000'}
+          />
+        )}
+        label={'Instructor Profile'}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == '/instructor_profile' ? '#fff' : '#000' },
+        ]}
+        style={{
+          backgroundColor: pathname == '/instructor_profile' ? '#333' : '#fff',
+        }}
+        onPress={() => {
+          router.push('/instructor_profile');
         }}
       />
       <DrawerItem
         icon={({ size }) => (
           <User
             size={size}
-            color={pathname == "/instructors" ? "#fff" : "#000"}
+            color={pathname == '/instructors' ? '#fff' : '#000'}
           />
         )}
-        label={"Our instructors"}
+        label={'Our instructors'}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/instructors" ? "#fff" : "#000" },
+          { color: pathname == '/instructors' ? '#fff' : '#000' },
         ]}
-        style={{ backgroundColor: pathname == "/instructors" ? "#333" : "#fff" }}
+        style={{
+          backgroundColor: pathname == '/instructors' ? '#333' : '#fff',
+        }}
         onPress={() => {
-          router.push("/instructors");
+          router.push('/instructors');
         }}
       />
     </DrawerContentScrollView>
@@ -147,12 +170,19 @@ const CustomDrawerContent = (props) => {
 
 export default function Layout() {
   return (
-    <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />} screenOptions={{ headerShown: false }}>
+    <Drawer
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
       <Drawer.Screen name="schedule" options={{ headerShown: true }} />
       <Drawer.Screen name="settings" options={{ headerShown: true }} />
       <Drawer.Screen name="progress" options={{ headerShown: true }} />
       <Drawer.Screen name="contact" options={{ headerShown: true }} />
       <Drawer.Screen name="tickets" options={{ headerShown: true }} />
+      <Drawer.Screen
+        name="instructor_profile"
+        options={{ headerShown: true }}
+      />
       <Drawer.Screen name="instructors" options={{ headerShown: true }} />
     </Drawer>
   );
@@ -163,10 +193,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   userInfoWrapper: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingHorizontal: 10,
     paddingVertical: 20,
-    borderBottomColor: "#ccc",
+    borderBottomColor: '#ccc',
     borderBottomWidth: 1,
     marginBottom: 10,
   },
@@ -185,5 +215,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     textDecorationLine: 'underline',
-  }
+  },
 });
