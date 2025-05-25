@@ -176,8 +176,8 @@ export default function InstructorProfile() {
           >
             {accountData.map((item, index) => {
               return (
-                <>
-                  <AccordionItem value={index.toString()} key={index}>
+                <React.Fragment key={index}>
+                  <AccordionItem value={index.toString()}>
                     <AccordionHeader>
                       <AccordionTrigger>
                         {({ isExpanded }) => {
@@ -250,7 +250,7 @@ export default function InstructorProfile() {
                     </AccordionContent>
                   </AccordionItem>
                   <Divider />
-                </>
+                </React.Fragment>
               );
             })}
           </Accordion>
