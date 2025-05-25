@@ -52,6 +52,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-router',
+    [
+      'expo-camera',
+      {
+        cameraPermission: 'Allow app to access your camera',
+      },
+    ],
   ],
   extra: {
     ...ClientEnv,
