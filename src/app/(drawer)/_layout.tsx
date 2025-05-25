@@ -12,6 +12,8 @@ import {
 } from 'lucide-react-native';
 import { router, usePathname } from 'expo-router';
 
+import { User } from 'lucide-react-native';
+
 import { Button, Text, View } from '@/components/ui';
 
 const CustomDrawerContent = (props) => {
@@ -143,6 +145,25 @@ const CustomDrawerContent = (props) => {
           router.push('/instructor_profile');
         }}
       />
+      <DrawerItem
+        icon={({ size }) => (
+          <User
+            size={size}
+            color={pathname == '/instructors' ? '#fff' : '#000'}
+          />
+        )}
+        label={'Our instructors'}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == '/instructors' ? '#fff' : '#000' },
+        ]}
+        style={{
+          backgroundColor: pathname == '/instructors' ? '#333' : '#fff',
+        }}
+        onPress={() => {
+          router.push('/instructors');
+        }}
+      />
     </DrawerContentScrollView>
   );
 };
@@ -162,6 +183,7 @@ export default function Layout() {
         name="instructor_profile"
         options={{ headerShown: true }}
       />
+      <Drawer.Screen name="instructors" options={{ headerShown: true }} />
     </Drawer>
   );
 }
