@@ -15,6 +15,7 @@ import { router, usePathname } from 'expo-router';
 import { User } from 'lucide-react-native';
 
 import { Button, Text, View } from '@/components/ui';
+import BellButton from '@/components/notification/bellButton';
 
 const CustomDrawerContent = (props) => {
   const pathname = usePathname();
@@ -174,16 +175,17 @@ export default function Layout() {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Drawer.Screen name="schedule" options={{ headerShown: true }} />
-      <Drawer.Screen name="settings" options={{ headerShown: true }} />
-      <Drawer.Screen name="progress" options={{ headerShown: true }} />
-      <Drawer.Screen name="contact" options={{ headerShown: true }} />
-      <Drawer.Screen name="tickets" options={{ headerShown: true }} />
+      <Drawer.Screen name="schedule" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="settings" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="progress" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="contact" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="tickets" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
       <Drawer.Screen
         name="instructor_profile"
-        options={{ headerShown: true }}
+        options={{ headerShown: true, headerRight: () => <BellButton /> }}
       />
-      <Drawer.Screen name="instructors" options={{ headerShown: true }} />
+      <Drawer.Screen name="instructors" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="notifications" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
     </Drawer>
   );
 }
