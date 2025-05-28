@@ -62,7 +62,7 @@ export default function Page() {
           {/* <Text className="text-xs text-gray-400">*CC - classes conducted</Text>
           <Text className="text-xs text-gray-400">*Spec - specializations</Text> */}
           {instructors.map((instructor) => (
-            <Link href="/">
+            <Link href={`/instructor_profile/${instructor.id}`} key={instructor.id}>
               {' '}
               {/* ZMIENIĆ HREF NA WIDOK POJEDYNCZEGO PROFILU */}
               <HStack
