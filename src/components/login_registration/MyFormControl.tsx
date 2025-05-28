@@ -15,7 +15,7 @@ import {
   Text,
   AlertCircleIcon,
 } from '@/components/ui';
-import { LoginFormData, RegisterFormData } from '@/util/types';
+import { LoginFormData, RegisterFormData } from '@/util/types/types';
 import { Dispatch, SetStateAction } from 'react';
 
 type MyFormControlProps<T extends Record<string, any>> = {

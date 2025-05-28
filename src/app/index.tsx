@@ -19,7 +19,7 @@ import {
 } from '@/components/ui';
 import { AlertCircleIcon } from '@/components/ui/icon';
 import { z } from 'zod';
-import { LoginFormData, LoginFormSchema } from '@/util/types';
+import { LoginFormData, LoginFormSchema } from '@/util/types/types';
 import MyFormControl from '@/components/login_registration/MyFormControl';
 import { authClient } from '@/lib/auth/auth-client';
 import * as cookie from 'cookie';
@@ -33,6 +33,7 @@ export default function Page() {
   setTimeout(() => {
     const cookies = cookie.parse(authClient.getCookie());
     if (cookies['better-auth.session_token']) {
+      // authClient.signOut();
       router.push('/(drawer)/(tabs)/feed');
     }
   }, 0);

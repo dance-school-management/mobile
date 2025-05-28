@@ -19,7 +19,7 @@ import {
 } from '@/components/ui';
 import { AlertCircleIcon } from '@/components/ui/icon';
 import { z } from 'zod';
-import { RegisterFormData, RegisterFormSchema } from '@/util/types';
+import { RegisterFormData, RegisterFormSchema } from '@/util/types/types';
 import MyFormControl from '@/components/login_registration/MyFormControl';
 import { authClient } from '@/lib/auth/auth-client';
 
