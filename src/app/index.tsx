@@ -30,12 +30,12 @@ export default function Page() {
     password: '',
   });
   const router = useRouter();
-  useEffect(() => {
+  setTimeout(() => {
     const cookies = cookie.parse(authClient.getCookie());
     if (cookies['better-auth.session_token']) {
       router.push('/(drawer)/(tabs)/feed');
     }
-  }, []);
+  }, 0);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof LoginFormData, string>>
