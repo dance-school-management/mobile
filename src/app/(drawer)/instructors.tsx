@@ -88,7 +88,7 @@ export default function Page() {
                 {/* ZMIENIĆ HREF NA WIDOK POJEDYNCZEGO PROFILU */}
                 <HStack
                   className="justify-between items-center bg-white rounded-md"
-                  key={index}
+                  key={instructor.id}
                 >
                   <HStack space="md" className="p-2">
                     <Avatar className="bg-primary-500">
