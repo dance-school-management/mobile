@@ -19,8 +19,9 @@ import {
 } from '@/components/ui';
 import { AlertCircleIcon } from '@/components/ui/icon';
 import { z } from 'zod';
-import { RegisterFormData, RegisterFormSchema } from '@/util/types';
+import { RegisterFormData, RegisterFormSchema } from '@/util/types/types';
 import MyFormControl from '@/components/login_registration/MyFormControl';
+import { authClient } from '@/lib/auth/auth-client';
 
 export default function Page() {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -35,7 +36,7 @@ export default function Page() {
     Partial<Record<keyof RegisterFormData, string>>
   >({});
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = RegisterFormSchema.safeParse(formData);
 
     if (!result.success) {
@@ -47,8 +48,25 @@ export default function Page() {
       setErrors(fieldErrors);
       return;
     }
-
     setErrors({});
+    await authClient.signUp.email(
+      {
+        email: formData.email,
+        password: formData.password,
+        name: formData.name + ' ' + formData.surname,
+        //@ts-ignore
+        first_name: formData.name,
+        surname: formData.surname,
+      },
+      {
+        onError: (ctx) => {
+          alert(ctx.error.message);
+        },
+        onSuccess: (ctx) => {
+          //router.push('/dashboard');
+        },
+      }
+    );
     console.log('Form submitted:', formData);
     // dalsza logika, np. zapytanie do API
   };
@@ -85,7 +103,7 @@ export default function Page() {
           label="Email"
           setFormData={setFormData}
         />
-        
+
         {/* Password */}
         <MyFormControl
           error={errors.password}
