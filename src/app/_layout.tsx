@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { storage } from '../lib/mmkv'; // Your MMKV instance
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export default function Layout() {
   return (
