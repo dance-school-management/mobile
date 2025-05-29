@@ -23,6 +23,10 @@ import { LoginFormData, LoginFormSchema } from '@/util/types/types';
 import MyFormControl from '@/components/login_registration/MyFormControl';
 import { authClient } from '@/lib/auth/auth-client';
 import * as cookie from 'cookie';
+import { useSessionQuery } from '@/lib/auth/session';
+import { useLogoutMutation } from '@/lib/auth/logout';
+import { queryClient } from './_layout';
+import { useLoginMutation } from '@/lib/auth/login';
 
 export default function Page() {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -30,13 +34,24 @@ export default function Page() {
     password: '',
   });
   const router = useRouter();
-  setTimeout(() => {
-    const cookies = cookie.parse(authClient.getCookie());
-    if (cookies['better-auth.session_token']) {
-      // authClient.signOut();
-      router.push('/(drawer)/(tabs)/feed');
-    }
-  }, 0);
+
+  // setTimeout(() => {
+  //   const cookies = cookie.parse(authClient.getCookie());
+  //   if (cookies['better-auth.session_token']) {
+  //     // authClient.signOut();
+  //     router.push('/(drawer)/(tabs)/feed');
+  //   }
+  // }, 0);
+
+  const {
+    data: sessionData,
+    error: sessionError,
+    isLoading: sessionIsLoading,
+    refetch: refetchSession,
+  } = useSessionQuery();
+
+  const loginMutation = useLoginMutation();
+  const logoutMutation = useLogoutMutation();
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof LoginFormData, string>>
@@ -56,9 +71,25 @@ export default function Page() {
     }
 
     setErrors({});
+    loginMutation.mutate(formData);
     console.log('Form submitted:', formData);
     // dalsza logika, np. zapytanie do API
   };
+
+  if (sessionData?.data?.user) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text className="text-xl py-4">You are logged in</Text>
+        <Button
+          onPress={() => {
+            logoutMutation.mutate();
+          }}
+        >
+          <ButtonText>Logout</ButtonText>
+        </Button>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -96,7 +127,7 @@ export default function Page() {
 
       {/* Navigation */}
       <Link href={'/register'} asChild>
-        <Button>
+        <Button className="my-4">
           <ButtonText>Register</ButtonText>
         </Button>
       </Link>

@@ -10,8 +10,9 @@ const fetchInstructors = async (): Promise<{ instructors: Instructor[] }> => {
 };
 
 export const useInstructors = () =>
-  useQuery<{ instructors: Instructor[] }, Error>({
+  useQuery<{ instructors: Instructor[] }, UniversalError>({
     queryKey: ['instructors'],
     queryFn: fetchInstructors,
     retry: 1,
+    refetchOnWindowFocus: true,
   });

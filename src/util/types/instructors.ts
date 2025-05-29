@@ -7,6 +7,6 @@ export interface Instructor {
     startDate: Date | null;
     description: string | null;
     photoPath: string | null;
-    favouriteDanceCategories: number[];
+    favouriteDanceCategories: string[];
     role: Role;
 }

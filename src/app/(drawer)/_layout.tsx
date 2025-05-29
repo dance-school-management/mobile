@@ -14,7 +14,13 @@ import { router, usePathname } from 'expo-router';
 
 import { User } from 'lucide-react-native';
 
-import { Button, Text, View } from '@/components/ui';
+import { Button, ButtonText, Text, View } from '@/components/ui';
+import { authClient } from '@/lib/auth/auth-client';
+import { set } from 'zod';
+import { useSessionQuery } from '@/lib/auth/session';
+import { useMutation } from '@tanstack/react-query';
+import { useLogoutMutation } from '@/lib/auth/logout';
+import { queryClient } from '../_layout';
 
 const CustomDrawerContent = (props) => {
   const pathname = usePathname();
@@ -22,7 +28,14 @@ const CustomDrawerContent = (props) => {
   useEffect(() => {
     console.log(pathname);
   }, [pathname]);
+  const {
+    data: sessionData,
+    error: sessionError,
+    isLoading: sessionIsLoading,
+    refetch: refetchSession,
+  } = useSessionQuery();
 
+  const logoutMutation = useLogoutMutation();
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.userInfoWrapper}>
@@ -33,15 +46,29 @@ const CustomDrawerContent = (props) => {
           style={styles.userImg}
         /> */}
         <View style={styles.userDetailsWrapper}>
-          <Text style={styles.userName}>John Doe</Text>
-          <Text style={styles.userEmail}>john@email.com</Text>
-          <Button
-            onPress={() => {
-              router.push('/');
-            }}
-          >
-            <Text>Logout</Text>
-          </Button>
+          {sessionData?.data?.user && !sessionIsLoading ? (
+            <>
+              <Text style={styles.userName}>{sessionData.data?.user.name}</Text>
+              <Text style={styles.userEmail}>
+                {sessionData.data?.user.email}
+              </Text>
+              <Button
+                onPress={() => {
+                  logoutMutation.mutate();
+                }}
+              >
+                <ButtonText>Logout</ButtonText>
+              </Button>
+            </>
+          ) : (
+            <Button
+              onPress={() => {
+                router.push('/');
+              }}
+            >
+              <ButtonText>Log in</ButtonText>
+            </Button>
+          )}
         </View>
       </View>
       <DrawerItem
@@ -128,25 +155,6 @@ const CustomDrawerContent = (props) => {
       />
       <DrawerItem
         icon={({ size }) => (
-          <UserRoundSearch
-            size={size}
-            color={pathname == '/instructor_profile' ? '#fff' : '#000'}
-          />
-        )}
-        label={'Instructor Profile'}
-        labelStyle={[
-          styles.navItemLabel,
-          { color: pathname == '/instructor_profile' ? '#fff' : '#000' },
-        ]}
-        style={{
-          backgroundColor: pathname == '/instructor_profile' ? '#333' : '#fff',
-        }}
-        onPress={() => {
-          router.push('/instructor_profile');
-        }}
-      />
-      <DrawerItem
-        icon={({ size }) => (
           <User
             size={size}
             color={pathname == '/instructors' ? '#fff' : '#000'}
@@ -179,10 +187,6 @@ export default function Layout() {
       <Drawer.Screen name="progress" options={{ headerShown: true }} />
       <Drawer.Screen name="contact" options={{ headerShown: true }} />
       <Drawer.Screen name="tickets" options={{ headerShown: true }} />
-      <Drawer.Screen
-        name="instructor_profile"
-        options={{ headerShown: true }}
-      />
       <Drawer.Screen name="instructors" options={{ headerShown: true }} />
     </Drawer>
   );

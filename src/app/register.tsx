@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import {
@@ -22,6 +22,8 @@ import { z } from 'zod';
 import { RegisterFormData, RegisterFormSchema } from '@/util/types/types';
 import MyFormControl from '@/components/login_registration/MyFormControl';
 import { authClient } from '@/lib/auth/auth-client';
+import { queryClient } from './_layout';
+import { useRegisterMutation } from '@/lib/auth/register';
 
 export default function Page() {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -31,10 +33,12 @@ export default function Page() {
     password: '',
     confirmPassword: '',
   });
+  const router = useRouter();
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof RegisterFormData, string>>
   >({});
+  const registerMutation = useRegisterMutation();
 
   const handleSubmit = async () => {
     const result = RegisterFormSchema.safeParse(formData);
@@ -49,24 +53,7 @@ export default function Page() {
       return;
     }
     setErrors({});
-    await authClient.signUp.email(
-      {
-        email: formData.email,
-        password: formData.password,
-        name: formData.name + ' ' + formData.surname,
-        //@ts-ignore
-        first_name: formData.name,
-        surname: formData.surname,
-      },
-      {
-        onError: (ctx) => {
-          alert(ctx.error.message);
-        },
-        onSuccess: (ctx) => {
-          //router.push('/dashboard');
-        },
-      }
-    );
+    registerMutation.mutate(formData);
     console.log('Form submitted:', formData);
     // dalsza logika, np. zapytanie do API
   };
@@ -134,7 +121,7 @@ export default function Page() {
         </Button>
       </VStack>
       <Link href={'/'} asChild>
-        <Button>
+        <Button className="my-4">
           <ButtonText>Login</ButtonText>
         </Button>
       </Link>
