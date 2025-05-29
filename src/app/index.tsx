@@ -1,5 +1,5 @@
-import { Link } from 'expo-router';
-import React, { useState } from 'react';
+import { Link, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import {
   Button,
@@ -19,14 +19,24 @@ import {
 } from '@/components/ui';
 import { AlertCircleIcon } from '@/components/ui/icon';
 import { z } from 'zod';
-import { LoginFormData, LoginFormSchema } from '@/util/types';
+import { LoginFormData, LoginFormSchema } from '@/util/types/types';
 import MyFormControl from '@/components/login_registration/MyFormControl';
+import { authClient } from '@/lib/auth/auth-client';
+import * as cookie from 'cookie';
 
 export default function Page() {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
   });
+  const router = useRouter();
+  setTimeout(() => {
+    const cookies = cookie.parse(authClient.getCookie());
+    if (cookies['better-auth.session_token']) {
+      // authClient.signOut();
+      router.push('/(drawer)/(tabs)/feed');
+    }
+  }, 0);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof LoginFormData, string>>
