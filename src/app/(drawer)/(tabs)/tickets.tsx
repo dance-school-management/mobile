@@ -1,5 +1,5 @@
 import { Heading } from '@/components/ui/heading';
-import { View } from 'react-native';
+import { View, SafeAreaView } from 'react-native';
 import { useState, useEffect } from 'react';
 import Ticket from '@/components/ticket/ticket';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -109,6 +109,7 @@ export default function Page() {
   }, []);
 
   return (
+    <SafeAreaView className="flex-1">
     <View className="flex-1 p-4">
       <Heading size="xl" className="text-primary-700 tracking-wide">Your Tickets:</Heading>
       <ScrollView className="flex-1">
@@ -160,5 +161,6 @@ export default function Page() {
         owned={ownedTicket}
       />
     </View>
+    </SafeAreaView>
   );
 }
