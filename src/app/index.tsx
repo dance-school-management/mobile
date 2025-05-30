@@ -87,6 +87,11 @@ export default function Page() {
         >
           <ButtonText>Logout</ButtonText>
         </Button>
+        <Link href={'/(drawer)/(tabs)/feed'} asChild>
+          <Button className="my-4">
+            <ButtonText>Go to app</ButtonText>
+          </Button>
+        </Link>
       </View>
     );
   }
