@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, SafeAreaView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
   CalendarBody,
@@ -71,6 +71,7 @@ export default function Page() {
   }, [minDate, maxDate]);
 
   return (
+    <SafeAreaView className="flex-1">
     <View className="flex-1 bg-white">
       <ScheduleHeader
         setCurrentDate={setCurrentDate}
@@ -138,5 +139,6 @@ export default function Page() {
         setActiveModal={setActiveModal}
       />
     </View>
+    </SafeAreaView>
   );
 }

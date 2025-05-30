@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, SafeAreaView } from 'react-native';
 import { Alert, AlertText } from '@/components/ui/alert';
 import { Heading } from '@/components/ui/heading';
 import { Divider } from '@/components/ui/divider';
@@ -76,6 +76,7 @@ export default function Notifications() {
     }, []);
 
     return (
+        <SafeAreaView className="flex-1">
         <View className="flex-1">
         <Heading className="text-typography-950 font-semibold text-center mt-4 mb-2" size="lg">
             Notifications:
@@ -110,5 +111,6 @@ export default function Notifications() {
             />
         </ScrollView>
         </View>
+        </SafeAreaView>
     )
 }
