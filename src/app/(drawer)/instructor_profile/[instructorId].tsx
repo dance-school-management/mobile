@@ -1,5 +1,11 @@
-import { Text, ScrollView, Image, View, RefreshControl } from 'react-native';
-import avatar from 'assets/img/example-instructor.png';
+import {
+  Text,
+  ScrollView,
+  Image,
+  View,
+  RefreshControl,
+  Dimensions,
+} from 'react-native';
 import banner from 'assets/img/banner.png';
 import {
   Avatar,
@@ -35,7 +41,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { useInstructor } from '@/lib/hooks/useInstructor';
-import { set } from 'zod';
+import { BarChart } from 'react-native-gifted-charts'
 
 const danceCategories = [
   { id: 1, name: 'Tango' },
@@ -107,6 +113,8 @@ export default function InstructorProfile() {
   );
   const [refreshing, setRefreshing] = useState(false);
 
+  const screenWidth = Dimensions.get('window').width;
+
   function handlePress(index: number) {
     setOpenIndexes((prev) =>
       prev.map((open, i) => (i === index ? !open : open))
@@ -124,6 +132,7 @@ export default function InstructorProfile() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetchInstructor();
+    console.log(instructorData);
     setRefreshing(false);
   }, []);
 
@@ -186,7 +195,7 @@ export default function InstructorProfile() {
               </Center>
               <VStack className="m-5 items-start w-full">
                 <Heading className="text-2xl my-2">
-                  My favourite styles:
+                  Specializations:
                 </Heading>
                 <View className="flex flex-row flex-wrap w-5/6 gap-1">
                   {instructorData?.favouriteDanceCategories.map(
@@ -296,6 +305,27 @@ export default function InstructorProfile() {
                     );
                   })}
                 </Accordion>
+                <Heading size="lg" className="ml-2 mt-4">Time spent per dance category:</Heading>
+                <View style={{ marginLeft: -50, height: instructorData?.experience.length * 60, marginBottom: 20 }}>
+                  <BarChart
+                    data={instructorData?.experience.sort((a, b) => b.spentHours - a.spentHours).map(exp => (
+                      {value: exp.spentHours, label: `${exp.danceCategoryName} - ${exp.advancementLevelName}`}
+                    ))}
+                    width={screenWidth - 50}
+                    horizontal
+                    barWidth={22}
+                    barBorderRadius={4}
+                    frontColor="#8888FF"
+                    yAxisThickness={0}
+                    xAxisThickness={0}
+                    yAxisAtTop
+                    disablePress
+                    initialSpacing={0}
+                    xAxisLabelTextStyle={
+                      { color: 'black', fontSize: 14, width: 300, includeFontPadding: false, textAlign: 'left', marginLeft: 40 }
+                    }
+                  />
+                </View>
               </VStack>
             </>
           )}

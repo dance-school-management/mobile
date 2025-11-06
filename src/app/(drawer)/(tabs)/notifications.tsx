@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { View, ScrollView, SafeAreaView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Alert, AlertText } from '@/components/ui/alert';
 import { Heading } from '@/components/ui/heading';
 import { Divider } from '@/components/ui/divider';
 import Notification from '@/components/notification/notification';
 import NotificationDetails from '@/components/notification/notificationDetails';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const mockNotifications = [
     {
@@ -76,12 +77,8 @@ export default function Notifications() {
     }, []);
 
     return (
-        <SafeAreaView className="flex-1">
-        <View className="flex-1">
-        <Heading className="text-typography-950 font-semibold text-center mt-4 mb-2" size="lg">
-            Notifications:
-        </Heading>
-        <Divider />
+        <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
+        <View className="flex-1 mt-2">
         <ScrollView className="flex-1">
             {notifications.length === 0 ? (
                 <Alert className="w-full max-w-md mt-4" action="info" variant='solid'>

@@ -24,7 +24,57 @@ const getDayEnd = (date: Date) => {
     return endOfDay;
 }
 
-const formatEvent = (event) => {
+interface EventProp {
+  id: number;
+  instructors: {
+    id: number;
+    name: string;
+    surname: string;
+  }
+  owned: boolean;
+  paymentStatus: string | null;
+  classTemplateId: number;
+  groupNumber: number;
+  startDate: Date;
+  endDate: Date;
+  peopleLimit: number;
+  classRoomId: number;
+  classStatus: string;
+  classTemplate: {
+    id: number;
+    courseId: number;
+    name: string;
+    description: string;
+    price: string;
+    currency: string;
+    danceCategoryId: number;
+    advancementLevelId: number;
+    classType: string;
+    scheduleTileColor: string;
+    danceCategory: {
+      id: number;
+      name: string;
+      description: string;
+      photoPath: string;
+    }
+    advancementLevel: {
+      id: number;
+      name: string;
+      description: string;
+    }
+    course: {
+      id: number;
+      name: string;
+      description: string;
+      danceCategoryId: number;
+      advancementLevelId: number;
+      courseStatus: string;
+      customPrice: string;
+    }
+  }
+}
+
+const formatEvent = (event : EventProp) => {
   return {
     id: event.id,
     name: event.classTemplate.name,

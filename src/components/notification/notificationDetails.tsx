@@ -12,13 +12,16 @@ import { Text } from '@/components/ui/text';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Divider } from '@/components/ui/divider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 export default function NotificationDetails({ notification, visible, onClose }) {
+    const insets = useSafeAreaInsets();
+
     return (
         <Modal isOpen={visible} onClose={onClose} size="full">
             <ModalBackdrop />
-            <ModalContent className="flex-1 h-full flex-start">
+            <ModalContent className="flex-1 h-full flex-start" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
                 <ModalCloseButton>
                     <Icon size='xl' as={ArrowLeftIcon} className="stroke-background-500" />
                 </ModalCloseButton>
@@ -40,7 +43,7 @@ export default function NotificationDetails({ notification, visible, onClose }) 
                         {notification?.description}
                     </Text>
                 </ModalBody>
-                <ModalFooter className="flex justify-center">
+                <ModalFooter className="flex justify-center" style={{ paddingBottom: insets.bottom }}>
                     <Button variant="solid" action="secondary" size="lg" isDisabled={notification?.hasBeenRead}>
                         <ButtonText>Mark as read</ButtonText>
                     </Button>

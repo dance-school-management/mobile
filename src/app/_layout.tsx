@@ -8,6 +8,7 @@ import { useSyncQueriesExternal } from 'react-query-external-sync';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { storage } from '../lib/mmkv'; // Your MMKV instance
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export const queryClient = new QueryClient();
 
@@ -52,12 +53,14 @@ function AppContent() {
 
   // Your app content
   return (
-    <GluestackUIProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="register" />
-        <Stack.Screen name="(drawer)" />
-      </Stack>
-    </GluestackUIProvider>
+    <SafeAreaProvider>
+      <GluestackUIProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="register" />
+          <Stack.Screen name="(drawer)" />
+        </Stack>
+      </GluestackUIProvider>
+    </SafeAreaProvider>
   );
 }

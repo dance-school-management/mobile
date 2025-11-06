@@ -62,12 +62,19 @@ const CustomDrawerContent = (props) => {
               </Button>
             </>
           ) : (
+            // <Button
+            //   onPress={() => {
+            //     router.push('/');
+            //   }}
+            // >
+            //   <ButtonText>Log in</ButtonText>
+            // </Button>
             <Button
               onPress={() => {
-                router.push('/');
+                router.push('/(drawer)/profile');
               }}
             >
-              <ButtonText>Log in</ButtonText>
+              <ButtonText>Profile</ButtonText>
             </Button>
           )}
         </View>
@@ -195,6 +202,8 @@ export default function Layout() {
       />
       <Drawer.Screen name="instructors" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
       <Drawer.Screen name="notifications" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="course" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="profile" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
     </Drawer>
   );
 }

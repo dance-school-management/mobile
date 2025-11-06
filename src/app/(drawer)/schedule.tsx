@@ -1,4 +1,4 @@
-import { View, SafeAreaView } from 'react-native';
+import { View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
   CalendarBody,
@@ -16,26 +16,94 @@ import { SearchIcon } from '@/components/ui/icon';
 import { Button, ButtonText } from '@/components/ui/button';
 import { formatEvent, getDayStart, getDayEnd } from '@/util/schedule';
 import SearchedEvents from '@/components/schedule/searchedEvents';
-import { authClient } from '@/lib/auth/auth-client';
+import api from 'src/lib/axios/axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+interface EventProp {
+  id: number;
+  instructors: {
+    id: number;
+    name: string;
+    surname: string;
+  }
+  owned: boolean;
+  paymentStatus: string | null;
+  classTemplateId: number;
+  groupNumber: number;
+  startDate: Date;
+  endDate: Date;
+  peopleLimit: number;
+  classRoomId: number;
+  classStatus: string;
+  classTemplate: {
+    id: number;
+    courseId: number;
+    name: string;
+    description: string;
+    price: string;
+    currency: string;
+    danceCategoryId: number;
+    advancementLevelId: number;
+    classType: string;
+    scheduleTileColor: string;
+    danceCategory: {
+      id: number;
+      name: string;
+      description: string;
+      photoPath: string;
+    }
+    advancementLevel: {
+      id: number;
+      name: string;
+      description: string;
+    }
+    course: {
+      id: number;
+      name: string;
+      description: string;
+      danceCategoryId: number;
+      advancementLevelId: number;
+      courseStatus: string;
+      customPrice: string;
+    }
+  }
+}
+
+interface CalendarEvent {
+  id: number | string;
+  start: Date;
+  end: Date;
+  title: string;
+  color?: string;
+  bgColor?: string;
+  name: string;
+  classroom: string;
+  danceCategory?: { id: number; name: string; description?: string; photoPath?: string };
+  advancementLevel?: { id: number; name: string; description?: string };
+  description?: string;
+  price?: string;
+  currency?: string;
+};
 
 export default function Page() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [minDate, setMinDate] = useState(getDayStart(new Date()));
-  const [maxDate, setMaxDate] = useState(getDayEnd(new Date()));
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [minDate, setMinDate] = useState<Date>(getDayStart(new Date()));
+  const [maxDate, setMaxDate] = useState<Date>(getDayEnd(new Date()));
   const [activeModal, setActiveModal] = useState<
     null | 'filter' | 'event' | 'calendar'
   >(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchVisible, setSearchVisible] = useState(false);
-  const [pressedEvent, setPressedEvent] = useState(null);
-  const [events, setEvents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchVisible, setSearchVisible] = useState<boolean>(false);
+  const [pressedEvent, setPressedEvent] = useState<CalendarEvent>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [personalEvents, setPersonalEvents] = useState<CalendarEvent[]>([]);
 
   const renderEvent = useCallback((event) => {
     return (
       <Event
         event={event}
         style={{ height: '100%' }}
-        onPress={(event) => {
+        onPress={(event : CalendarEvent) => {
           setPressedEvent(event);
           setActiveModal('event');
         }}
@@ -43,19 +111,21 @@ export default function Page() {
     );
   }, []);
 
+  const fetchPersonalEvents = async () => {
+    try {
+      const response = await api.get(`/product/schedule/personal?dateFrom=${minDate.toISOString()}&dateTo=${maxDate.toISOString()}`);
+      const data = response.data;
+      console.log(data);
+      setPersonalEvents(data);
+    } catch (error) {
+      console.error('Error fetching personal events:', error);
+    }
+  }
+
   const fetchEvents = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/product/schedule?dateFrom=${minDate.toISOString()}&dateTo=${maxDate.toISOString()}`,
-        {
-          method: 'GET',
-          headers: {
-            Cookie: authClient.getCookie(),
-          },
-        }
-      );
-      const data = await response.json();
-      console.log(data);
+      const response = await api.get(`/product/schedule?dateFrom=${minDate.toISOString()}&dateTo=${maxDate.toISOString()}`);
+      const data = response.data;
       const formattedEvents = data.map((event: any) => {
         console.log(event.id);
         return formatEvent(event);
@@ -71,8 +141,7 @@ export default function Page() {
   }, [minDate, maxDate]);
 
   return (
-    <SafeAreaView className="flex-1">
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right', 'bottom']}>
       <ScheduleHeader
         setCurrentDate={setCurrentDate}
         setMinDate={setMinDate}
@@ -92,15 +161,15 @@ export default function Page() {
         <CalendarHeader />
         <CalendarBody renderEvent={renderEvent} />
       </CalendarContainer>
-      <Button
-        variant="solid"
-        action="secondary"
-        className="m-2"
-        size="md"
-        onPress={() => console.log(events)}
-      >
-        <ButtonText>Upcoming Routine Events</ButtonText>
-      </Button>
+      {/*<Button*/}
+      {/*  variant="solid"*/}
+      {/*  action="secondary"*/}
+      {/*  className="m-2"*/}
+      {/*  size="md"*/}
+      {/*  onPress={() => console.log(events)}*/}
+      {/*>*/}
+      {/*  <ButtonText>Upcoming Routine Events</ButtonText>*/}
+      {/*</Button>*/}
       <Input className="m-1" size="xl" variant="rounded">
         <InputSlot className="pl-2">
           <InputIcon as={SearchIcon} />
@@ -138,7 +207,6 @@ export default function Page() {
         setPressedEvent={setPressedEvent}
         setActiveModal={setActiveModal}
       />
-    </View>
     </SafeAreaView>
   );
 }

@@ -9,4 +9,5 @@ export interface Instructor {
     photoPath: string | null;
     favouriteDanceCategories: string[];
     role: Role;
+    experience: {advancementLevelName: string, danceCategoryName: string, spentHours: number}[];
 }

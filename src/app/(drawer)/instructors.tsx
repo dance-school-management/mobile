@@ -25,33 +25,6 @@ import { View } from 'react-native';
 import { useInstructors } from '@/lib/hooks/useInstructors';
 import { Spinner, Center } from '@/components/ui';
 
-// const instructors = [
-//   {
-//     id: 1,
-//     name: 'Janusz',
-//     surname: 'Kowalski',
-//     email: 'jkowalski@gmail.com',
-//     classesConducted: 200,
-//     specializations: ['Salsa', 'Tango'],
-//   },
-//   {
-//     id: 2,
-//     name: 'Anna',
-//     surname: 'Nowak',
-//     email: 'anowak@gmail.com',
-//     classesConducted: 130,
-//     specializations: ['Ballet', 'Folk dance'],
-//   },
-//   {
-//     id: 3,
-//     name: 'Tomasz',
-//     surname: 'Tadeusz',
-//     email: 'ttadeusz@gmail.com',
-//     classesConducted: 500,
-//     specializations: ['Jazz', 'Swing Dance', 'Belly dance', 'Ballet'],
-//   },
-// ];
-
 export default function Page() {
   const {
     data: instructorsData,
@@ -67,7 +40,7 @@ export default function Page() {
     setRefreshing(false);
   }, []);
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'bottom']}>
       <ScrollView
         contentContainerStyle={{ padding: 16 }}
         refreshControl={
@@ -87,8 +60,6 @@ export default function Page() {
             </Box>
 
             <VStack space="md">
-              {/* <Text className="text-xs text-gray-400">*CC - classes conducted</Text>
-          <Text className="text-xs text-gray-400">*Spec - specializations</Text> */}
               {instructorsIsLoading && <Spinner className="self-center mt-4" />}
               {instructorsError && (
                 <Text className="text-red-500 text-center">
@@ -123,7 +94,7 @@ export default function Page() {
                                 `http://localhost:8000/profile/${instructor.photoPath}`
                               );
                             }
-                            return null; // nic nie renderujemy
+                            return null;
                           })()}
 
                           <AvatarImage
@@ -140,9 +111,6 @@ export default function Page() {
                           <Text>
                             {instructor.name} {instructor.surname}
                           </Text>
-                          {/*                     <Text className="text-gray-500 font-normal">
-                      {instructor.email}
-                    </Text> */}
                           <Text size="sm" className="text-typography-500">
                             Specializations:{' '}
                           </Text>
@@ -161,14 +129,6 @@ export default function Page() {
                               )
                             )}
                           </View>
-                          {/* <HStack>
-                        <Text size="sm" className="text-typography-500">
-                          Conducted classes:{' '}
-                        </Text>
-                        <Badge>
-                          <BadgeText>{instructor.classesConducted}</BadgeText>
-                        </Badge>
-                      </HStack> */}
                         </VStack>
                       </HStack>
                     </HStack>

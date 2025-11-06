@@ -53,9 +53,9 @@ export default function EventDetails({ event, visible, onClose }) {
                     <Text className="mb-4">{event?.description}</Text>
                 </ModalBody>
                 <ModalFooter>
-                    <Button variant="outline" action="positive" onPress={onClose} size="md">
-                        <ButtonText>Buy: {event?.price} {event?.currency}</ButtonText>
-                    </Button>
+                    {/*<Button variant="outline" action="positive" onPress={onClose} size="md">*/}
+                    {/*    <ButtonText>Buy: {event?.price} {event?.currency}</ButtonText>*/}
+                    {/*</Button>*/}
                 </ModalFooter>
             </ModalContent>
         </Modal>

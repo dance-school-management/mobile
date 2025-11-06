@@ -1,166 +1,134 @@
 import { Heading } from '@/components/ui/heading';
-import { View, SafeAreaView } from 'react-native';
-import { useState, useEffect } from 'react';
+import { View } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import Ticket from '@/components/ticket/ticket';
 import { ScrollView } from 'react-native-gesture-handler';
 import TicketDetails from '@/components/ticket/ticketDetails';
 import { Alert, AlertText } from '@/components/ui/alert';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import api from 'src/lib/axios/axios';
+import { Skeleton, SkeletonText } from '@/components/ui/skeleton';
+import {
+  Button,
+  Input,
+  InputField,
+  InputIcon,
+  InputSlot,
+  SearchIcon,
+  Text,
+} from '@/components/ui';
+import { Spinner } from '@/components/ui/spinner';
+import { router } from 'expo-router';
 
-const mockTickets = [
-  {
-    id: '1',
-    name: 'Beginner Salsa Class',
-    startDate: '2024-06-10T18:00:00Z',
-    endDate: '2024-06-10T19:30:00Z',
-    classroom: 'Studio A',
-  },
-  {
-    id: '2',
-    name: 'Intermediate Bachata Workshop',
-    startDate: '2024-06-12T20:00:00Z',
-    endDate: '2024-06-12T21:30:00Z',
-    classroom: 'Studio B',
-  },
-  {
-    id: '3',
-    name: 'Advanced Hip-Hop Session',
-    startDate: '2024-06-14T17:00:00Z',
-    endDate: '2024-06-14T18:30:00Z',
-    classroom: 'Studio C',
-  },
-  {
-    id: '4',
-    name: 'Contemporary Dance Class',
-    startDate: '2024-06-16T16:00:00Z',
-    endDate: '2024-06-16T17:30:00Z',
-    classroom: 'Studio D',
-  },
-  {
-    id: '5',
-    name: 'Zumba Fitness',
-    startDate: '2024-06-18T19:00:00Z',
-    endDate: '2024-06-18T20:00:00Z',
-    classroom: 'Studio E',
-  },
-  {
-    id: '6',
-    name: 'Latin Fusion Night',
-    startDate: '2024-06-20T21:00:00Z',
-    endDate: '2024-06-20T23:00:00Z',
-    classroom: 'Main Hall',
-  },
-  {
-    id: '7',
-    name: 'Kids Ballet Class',
-    startDate: '2024-06-22T15:00:00Z',
-    endDate: '2024-06-22T16:00:00Z',
-    classroom: 'Studio F',
-  },
-  {
-    id: '8',
-    name: 'Jazz Funk Jam',
-    startDate: '2024-06-24T18:30:00Z',
-    endDate: '2024-06-24T20:00:00Z',
-    classroom: 'Studio G',
-  },
-];
-
-const mockRecommendedTickets = [
-  {
-    id: '9',
-    name: 'Salsa Social Night',
-    startDate: '2024-06-11T20:00:00Z',
-    endDate: '2024-06-11T23:00:00Z',
-    classroom: 'Main Hall',
-  },
-  {
-    id: '10',
-    name: 'Bachata Masterclass',
-    startDate: '2024-06-13T19:00:00Z',
-    endDate: '2024-06-13T21:00:00Z',
-    classroom: 'Studio B',
-  },
-  {
-    id: '11',
-    name: 'Street Jazz Workshop',
-    startDate: '2024-06-15T17:30:00Z',
-    endDate: '2024-06-15T19:00:00Z',
-    classroom: 'Studio H',
-  },
-  {
-    id: '12',
-    name: 'Afrobeat Dance Party',
-    startDate: '2024-06-17T20:00:00Z',
-    endDate: '2024-06-17T22:00:00Z',
-    classroom: 'Main Hall',
-  },
-];
+interface TicketProp {
+  classId: number;
+  qrCodeUUID: string;
+  name: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  classRoomName: string;
+  danceCategoryName: string;
+  advancementLevelName: string;
+  price: number;
+  paymentStatus: string;
+  attendaceStatus: string;
+  attendaceLastUpdated: Date;
+}
 
 export default function Page() {
-  const [tickets, setTickets] = useState(mockTickets);
-  const [recommendedTickets, setRecommendedTickets] = useState(mockRecommendedTickets);
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [visible, setVisible] = useState(false);
-  const [ownedTicket, setOwnedTicket] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [tickets, setTickets] = useState<TicketProp[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<TicketProp[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<TicketProp | null>(null);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const fetchTickets = async () => {
+    try {
+      const response = await api.get(`/enroll/ticket/retrieve`);
+      const data = response.data;
+      setTickets(data.tickets);
+      setFilteredTickets(data.tickets);
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+    }
+  }
 
   useEffect(() => {
-    setTickets(mockTickets);
-    setRecommendedTickets(mockRecommendedTickets);
+    fetchTickets();
+    setTimeout(() => setLoading(false), 200);
   }, []);
 
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
+        {/*<ScrollView className="flex-1">*/}
+        {/*  <Skeleton variant="sharp" className="h-[50px]" />*/}
+        {/*  <Skeleton variant="sharp" className="h-[50px]" />*/}
+        {/*  <Skeleton variant="sharp" className="h-[50px]" />*/}
+        {/*</ScrollView>*/}
+        <Spinner size='large' />
+      </SafeAreaView>
+    )
+  }
+
   return (
-    <SafeAreaView className="flex-1">
-    <View className="flex-1 p-4">
-      <Heading size="xl" className="text-primary-700 tracking-wide">Your Tickets:</Heading>
-      <ScrollView className="flex-1">
-        {tickets.length === 0 ? (
+    <SafeAreaView className="flex-1" edges={['left', 'right']}>
+      <ScrollView className="flex-1 pt-2">
+        <Button className="m-4 mb-2" variant="outline" onPress={() => router.push('/qr')}>
+          <Text>Scan QR Code</Text>
+        </Button>
+        <Input className="m-1" size="xl" variant="rounded">
+          <InputSlot className="pl-2">
+            <InputIcon as={SearchIcon} />
+          </InputSlot>
+          <InputField
+            type="text"
+            placeholder="Search tickets..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={() => {
+              setFilteredTickets(
+                tickets.filter((ticket) =>
+                  ticket.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+              );
+            }}
+          />
+        </Input>
+        {filteredTickets.length === 0 ? (
           <Alert action="info" variant="outline" className="mt-4">
-            <AlertText>You don't have any tickets.</AlertText>
+            <AlertText>No tickets found</AlertText>
           </Alert>
         ) : (
-          tickets.map(ticket => (
-            <Ticket
-              key={ticket.id}
-              ticket={ticket}
-              onPress={(ticket) => {
-                setSelectedTicket(ticket);
-                setOwnedTicket(true);
-                setVisible(true);
-              }}
-            />
-          ))
+          filteredTickets
+            .sort(
+              (a, b) =>
+                new Date(b.startDate).getTime() -
+                new Date(a.startDate).getTime()
+            )
+            .slice(0, 10)
+            .map((ticket) => (
+              <Ticket
+                key={ticket.classId}
+                ticket={ticket}
+                onPress={(ticket: TicketProp) => {
+                  setSelectedTicket(ticket);
+                  setVisible(true);
+                }}
+              />
+            ))
         )}
+        <TicketDetails
+          ticket={selectedTicket}
+          visible={visible}
+          onClose={() => {
+            setVisible(false);
+            setSelectedTicket(null);
+          }}
+        />
       </ScrollView>
-      <Heading size="xl" className="text-primary-700 tracking-wide mt-4">Recommended: </Heading>
-      <ScrollView className="flex-1">
-        {recommendedTickets.length === 0 ? (
-          <Alert action="info" variant="outline" className="mt-4">
-            <AlertText>No recommedations</AlertText>
-          </Alert>
-        ) : (
-          recommendedTickets.map((ticket: typeof mockRecommendedTickets[number]) => (
-            <Ticket
-              key={ticket.id}
-              ticket={ticket}
-              onPress={(ticket: typeof mockRecommendedTickets[number]) => {
-                setSelectedTicket(ticket);
-                setOwnedTicket(false);
-                setVisible(true);
-              }}
-            />
-          ))
-        )}
-      </ScrollView>
-      <TicketDetails
-        ticket={selectedTicket}
-        visible={visible}
-        onClose={() => {
-          setVisible(false);
-          setSelectedTicket(null);
-        }}
-        owned={ownedTicket}
-      />
-    </View>
     </SafeAreaView>
   );
 }

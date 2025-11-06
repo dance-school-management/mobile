@@ -73,6 +73,7 @@ export default function Page() {
     setErrors({});
     loginMutation.mutate(formData);
     console.log('Form submitted:', formData);
+
     // dalsza logika, np. zapytanie do API
   };
 
