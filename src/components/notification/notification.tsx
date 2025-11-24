@@ -3,8 +3,16 @@ import { Pressable } from '@/components/ui/pressable';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 
+interface NotificationProp {
+  id: number,
+  title: string,
+  body: string,
+  sendDate: Date,
+  payload: object,
+  hasBeenRead: boolean,
+}
 
-export default function Notification({ notification, onPress }) {
+export default function Notification({ notification, onPress }: { notification: NotificationProp, onPress: (notification: NotificationProp) => void }) {
     return (
         <Pressable onPress={() => onPress(notification)}>
             <Card

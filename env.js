@@ -37,8 +37,8 @@ require('dotenv').config({
 const BUNDLE_ID = 'com.myexpo'; // ios bundle id
 const PACKAGE = 'com.myexpo'; // android package name
 const NAME = 'Myexpo'; // app name
-const EXPO_ACCOUNT_OWNER = 'mwala'; // expo account owner
-const EAS_PROJECT_ID = ''; // eas project id
+const EXPO_ACCOUNT_OWNER = 'sqbany'; // expo account owner
+const EAS_PROJECT_ID = 'eafcc134-43ac-4627-839a-9c8410352708'; // eas project id
 const SCHEME = 'Myexpo'; // app scheme
 
 /**

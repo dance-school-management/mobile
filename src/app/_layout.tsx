@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../../global.css';
 import { Platform } from 'react-native';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
@@ -9,6 +9,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { storage } from '../lib/mmkv'; // Your MMKV instance
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as Notifications from 'expo-notifications';
+import { router } from 'expo-router';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: false
+  }),
+});
 
 export const queryClient = new QueryClient();
 
@@ -21,6 +33,16 @@ export default function Layout() {
 }
 
 function AppContent() {
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      if (data) {
+        router.push(`//(drawer)/(tabs)/notifications`)
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
   // Set up the sync hook - automatically disabled in production!
   useSyncQueriesExternal({
     queryClient,

@@ -13,10 +13,29 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Divider } from '@/components/ui/divider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import api from '@/lib/axios/axios';
 
+interface NotificationProp {
+  id: number,
+  title: string,
+  body: string,
+  sendDate: Date,
+  payload: object,
+  hasBeenRead: boolean,
+}
 
-export default function NotificationDetails({ notification, visible, onClose }) {
+export default function NotificationDetails({ notification, visible, onClose } : { notification: NotificationProp | null, visible: boolean, onClose: () => void }) {
     const insets = useSafeAreaInsets();
+
+    const handleMarkAsRead = async () => {
+      try {
+        await api.put(`/notification/notification/status`, {
+          ids: [notification?.id], hasBeenRead: !notification?.hasBeenRead
+        });
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
 
     return (
         <Modal isOpen={visible} onClose={onClose} size="full">
@@ -40,14 +59,16 @@ export default function NotificationDetails({ notification, visible, onClose }) 
                         })}
                     </Text>
                     <Text className="mb-4 mt-4">
-                        {notification?.description}
+                        {notification?.body}
                     </Text>
                 </ModalBody>
-                <ModalFooter className="flex justify-center" style={{ paddingBottom: insets.bottom }}>
-                    <Button variant="solid" action="secondary" size="lg" isDisabled={notification?.hasBeenRead}>
-                        <ButtonText>Mark as read</ButtonText>
+                {!notification?.hasBeenRead && (
+                  <ModalFooter className="flex justify-center" style={{ paddingBottom: insets.bottom }}>
+                    <Button variant="solid" action="secondary" size="lg" isDisabled={notification?.hasBeenRead} onPress={handleMarkAsRead}>
+                      <ButtonText>Mark as read</ButtonText>
                     </Button>
-                </ModalFooter>
+                  </ModalFooter>
+                )}
             </ModalContent>
         </Modal>
     )

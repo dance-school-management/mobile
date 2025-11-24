@@ -8,7 +8,7 @@ import {
   CalendarIcon,
   ChartColumnIcon,
   NotebookTextIcon,
-  UserRoundSearch,
+  SettingsIcon,
 } from 'lucide-react-native';
 import { router, usePathname } from 'expo-router';
 
@@ -180,6 +180,25 @@ const CustomDrawerContent = (props) => {
           router.push('/instructors');
         }}
       />
+      <DrawerItem
+          icon={({ size }) => (
+              <SettingsIcon
+                  size={size}
+                  color={pathname == '/settings' ? '#fff' : '#000'}
+              />
+          )}
+          label={'Settings'}
+          labelStyle={[
+              styles.navItemLabel,
+              { color: pathname == '/settings' ? '#fff' : '#000' },
+          ]}
+          style={{
+              backgroundColor: pathname == '/settings' ? '#333' : '#fff',
+          }}
+          onPress={() => {
+              router.push('/settings');
+          }}
+      />
     </DrawerContentScrollView>
   );
 };
@@ -191,19 +210,16 @@ export default function Layout() {
       screenOptions={{ headerShown: false }}
     >
 
-      <Drawer.Screen name="schedule" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen name="settings" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen name="progress" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen name="contact" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen name="tickets" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen
-        name="instructor_profile"
-        options={{ headerShown: true, headerRight: () => <BellButton /> }}
-      />
-      <Drawer.Screen name="instructors" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen name="notifications" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen name="course" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
-      <Drawer.Screen name="profile" options={{ headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="schedule" options={{ headerTitle: "Schedule", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="settings" options={{ headerTitle: "Settings", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="progress" options={{ headerTitle: "Progress", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="contact" options={{ headerTitle: "Contact", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="tickets" options={{ headerTitle: "Tickets", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="instructor_profile" options={{ headerTitle: "Instructor Profile", headerShown: true, headerRight: () => <BellButton /> }}/>
+      <Drawer.Screen name="instructors" options={{ headerTitle: "Instructors", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="notifications" options={{ headerTitle: "Notifications", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="course" options={{ headerTitle: "Course", headerShown: true, headerRight: () => <BellButton /> }} />
+      <Drawer.Screen name="profile" options={{ headerTitle: "Profile", headerShown: true, headerRight: () => <BellButton /> }} />
     </Drawer>
   );
 }
