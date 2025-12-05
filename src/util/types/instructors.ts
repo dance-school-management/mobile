@@ -1,3 +1,5 @@
+import { Role } from "./roles";
+
 export interface Instructor {
     name: string;
     id: string;

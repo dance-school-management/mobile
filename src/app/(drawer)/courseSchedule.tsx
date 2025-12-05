@@ -16,7 +16,7 @@ import { SearchIcon } from '@/components/ui/icon';
 import { Button, ButtonText } from '@/components/ui/button';
 import { formatEvent, getDayStart, getDayEnd } from '@/util/schedule';
 import SearchedEvents from '@/components/schedule/searchedEvents';
-import api from 'src/lib/axios/axios';
+import api from '@/server/axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface EventProp {

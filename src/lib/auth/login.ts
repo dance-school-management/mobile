@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from './auth-client';
+import { authClient } from '../../server/auth-client';
 import { queryClient } from '@/app/_layout';
 import { useRouter } from 'expo-router';
 

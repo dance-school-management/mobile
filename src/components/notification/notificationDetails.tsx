@@ -13,7 +13,7 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Divider } from '@/components/ui/divider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import api from '@/lib/axios/axios';
+import api from '@/server/axios';
 
 interface NotificationProp {
   id: number,

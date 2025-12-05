@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { authClient } from '../auth/auth-client';
+import { authClient } from './auth-client';
 
 const api = axios.create({
   baseURL: 'http://10.0.2.2:8000',

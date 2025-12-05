@@ -1,4 +1,5 @@
-import { View, Text, Button } from 'react-native';
-import React from 'react';
+import ScheduleScreen from '@/screens/ScheduleScreen'
 
-export { default } from '../schedule';
+export default function Schedule() {
+    return <ScheduleScreen />
+}

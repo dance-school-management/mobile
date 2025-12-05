@@ -3,34 +3,44 @@ import { Tabs } from 'expo-router';
 import { HomeIcon, TicketsIcon, CalendarIcon, BellIcon } from 'lucide-react-native';
 import { DrawerToggleButton } from '@react-navigation/drawer';
 import BellButton from '@/components/notification/bellButton';
+import { useSessionQuery } from '@/lib/auth/session';
 
 export default function _layout() {
+  const { data: sessionData } = useSessionQuery();
+  const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
+
+  const tabsByRole: Record<Role, Array<{ name: string, label: string, title: string, icon: React.ElementType, hide?: boolean }>> = {
+    STUDENT: [
+      { name: 'feed', label: 'Home', title: 'Home', icon: HomeIcon },
+      { name: 'tickets', label: 'My Tickets', title: 'My Tickets', icon: TicketsIcon },
+      { name: 'schedule', label: 'Schedule', title: 'Schedule', icon: CalendarIcon },
+    ],
+    INSTRUCTOR: [
+      { name: 'feed', label: 'Home', title: 'Home', icon: HomeIcon },
+      { name: 'schedule', label: 'Schedule', title: 'Schedule', icon: CalendarIcon },
+      { name: 'tickets', label: 'My Tickets', title: 'My Tickets', icon: TicketsIcon, hide: true },
+    ],
+    COORDINATOR: [
+      { name: 'feed', label: 'Home', title: 'Home', icon: HomeIcon },
+      { name: 'schedule', label: 'Schedule', title: 'Schedule', icon: CalendarIcon },
+      { name: 'tickets', label: 'My Tickets', title: 'My Tickets', icon: TicketsIcon, hide: true },
+    ],
+  };
+
   return (
     <Tabs screenOptions={{ headerLeft: () => <DrawerToggleButton tintColor='#000' />, headerRight: () => <BellButton /> }}>
-      <Tabs.Screen name='feed' options={{
-        tabBarIcon: ({ color }) => (
-          <HomeIcon size={24} color={color} />
-        ),
-        tabBarLabel: 'Home',
-        headerTitle: 'Home',
-      }} />
-      <Tabs.Screen name='tickets' options={{
-        tabBarIcon: ({ color }) => (
-          <TicketsIcon size={24} color={color} />
-        ),
-        tabBarLabel: 'My Tickets',
-        headerTitle: 'My Tickets'
-      }} />
-      <Tabs.Screen name='schedule' options={{
-        tabBarIcon: ({ color }) => (
-          <CalendarIcon size={24} color={color} />
-        ),
-        tabBarLabel: 'Schedule',
-        headerTitle: 'Schedule'
-      }} />
-      <Tabs.Screen name="notifications" options={{
-        href: null,
-      }} />
+      {tabsByRole[role].map((tab) => (
+        <Tabs.Screen
+          key={tab.name}
+          name={tab.name}
+          options={{
+            href: tab.hide ? null : undefined,
+            tabBarLabel: tab.label,
+            title: tab.title,
+            tabBarIcon: ({ color, size }) => <tab.icon color={color} size={size} />,
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

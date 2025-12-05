@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { authClient } from './auth-client';
+import { authClient } from '../../server/auth-client';
 const fetchSession = async () => {
   const session = await authClient.getSession();
   return session;

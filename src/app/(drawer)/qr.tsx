@@ -1,7 +1,5 @@
-import QRScanner from "@/components/qr/qrScanner";
+import ScannerScreen from '@/screens/ScannerScreen';
 
-export default function Qr() {
-    return (
-        <QRScanner />
-    )
+export default function QRPage() {
+  return <ScannerScreen />
 }

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import api from '../axios/axios';
-import { Instructor } from '../../util/types/instructors';
+import api from '../server/axios';
+import { Instructor } from '../util/types/instructors';
 
 const fetchInstructor = async (id: string): Promise<Instructor> => {
   const res = await api.get<Instructor>(`/profile/instructors/${id}`);
