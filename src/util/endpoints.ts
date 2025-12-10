@@ -1,4 +1,7 @@
 export const API_PATHS = {
+    getDanceCategories: '/product/public/cms/dance_category',
+    getClassRooms: '/product/public/cms/class_room',
+    getAdvancementLevels: '/product/public/cms/advancement_level',
     getMostPopularCourses: '/product/public/pricing/most_popular_courses',
     getSchedule: '/product/public/schedule',
     getScheduleCourses: '/product/public/schedule/search/courses',
@@ -15,7 +18,10 @@ export const API_PATHS = {
     postOrderCourse: '/enroll/order/course',
     postOrderPrivateClass: '/enroll/order/class/private/pay',
     postBlog: '/blog/posts',
-    getBlogs: '/blog/posts',
+    getBlogs: '/blog/public/posts',
+    getProfile: '/profile/user/profile',
+    changePassword: '/auth/api/auth/change-password',
+    getInstructors: '/profile/public/instructors',
 }
 
 export const getApiUrl = (

@@ -1,6 +1,6 @@
 import { Role } from "./roles";
 
-export interface Instructor {
+export interface InstructorShort {
     name: string;
     id: string;
     surname: string;
@@ -11,5 +11,8 @@ export interface Instructor {
     photoPath: string | null;
     favouriteDanceCategories: string[];
     role: Role;
-    experience: {advancementLevelName: string, danceCategoryName: string, spentHours: number}[];
+}
+
+export interface Instructor extends InstructorShort {
+  experience: {advancementLevelName: string, danceCategoryName: string, spentHours: number}[];
 }

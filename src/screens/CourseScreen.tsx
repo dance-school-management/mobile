@@ -1,247 +1,123 @@
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import api from '@/server/axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Box, Card, Heading, Pressable, Spinner, Text } from '@/components/ui';
-import { View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import {
+  Box,
+  Heading,
+  Text,
+  Badge,
+  Divider,
+  Button,
+  ButtonText,
+  Skeleton,
+} from '@/components/ui';
+import { RefreshControl, ScrollView } from 'react-native';
 import { API_PATHS, getApiUrl } from '@/util/endpoints';
-
-interface CourseDataProp {
-  id: number;
-  name: string;
-  description: string;
-  danceCategoryId: number;
-  advancementLevelId: number;
-  courseStatus: string;
-  danceCategory: {
-    id: number;
-    name: string;
-    description: string;
-    photoPath: string;
-  };
-  advancementLevel: {
-    id: number;
-    name: string;
-    description: string;
-  };
-  coursePrice: number;
-  instructors: { id: number; name: string; surname: string }[];
-}
-
-interface ClassProp {
-  id: number;
-  classTemplateId: number;
-  groupNumber: number;
-  startDate: Date;
-  endDate: Date;
-  peopleLimit: number;
-  classRoomId: number;
-  classStatus: string;
-  classTemplate: {
-    id: number;
-    courseId: number;
-    name: string;
-    description: string;
-    price: string;
-    currency: string;
-    danceCategoryId: number;
-    advancementLevelId: number;
-    classType: string;
-    scheduleTileColor: string;
-    course: {
-      id: number;
-      name: string;
-      description: string;
-      danceCategoryId: number;
-      advancementLevelId: number;
-      courseStatus: string;
-      customPrice: string;
-      danceCategory: {
-        id: number;
-        name: string;
-        description: string;
-        photoPath: string;
-      },
-      advancementLevel: {
-        id: number;
-        name: string;
-        description: string;
-      }
-    }
-  },
-  instructors: [
-    {
-      id: string;
-      name: string;
-      surname: string;
-    }
-  ]
-}
-
-interface CourseDetailsProp {
-  courseData: CourseDataProp;
-  classes: ClassProp[];
-}
-
-function formatDateRange(start: Date, end: Date) {
-  const dateOpts: Intl.DateTimeFormatOptions = { weekday: 'short', day: '2-digit', month: 'short' };
-  const timeOpts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-  const day = start.toLocaleDateString(undefined, dateOpts);
-  const startTime = start.toLocaleTimeString([], timeOpts);
-  const endTime = end.toLocaleTimeString([], timeOpts);
-  return { day, startTime, endTime };
-}
+import { CourseProp, ClassProp } from '@/util/types/course';
+import CourseClasses from '@/components/courses/CourseClasses';
+import { usePayment } from '@/context/PaymentContext';
+import { router } from 'expo-router';
 
 export default function CourseScreen() {
-  const { id } = useLocalSearchParams();
+  const { courseId } = useLocalSearchParams();
   const [loading, setLoading] = useState<boolean>(true);
-  const [courseDetails, setCourseDetails] = useState<CourseDetailsProp>();
-  const navigation = useNavigation();
-
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [course, setCourse] = useState<CourseProp>();
+  const [classes, setClasses] = useState<ClassProp[]>([]);
+  const [groupNumbers, setGroupNumbers] = useState<number[]>([]);
+  const { startPayment } = usePayment();
 
   const fetchCourseDetails = async () => {
     try {
-      const response = await api.get(getApiUrl(API_PATHS.getScheduleCoursesClasses, { coursesIds: id as string }));
-      const data = response.data;
-      console.log(data);
-      setCourseDetails(data[0]);
+      setLoading(true);
+      const response = await api.get(getApiUrl(API_PATHS.getScheduleCoursesClasses, { coursesIds: courseId as string }));
+      setCourse(response.data[0].courseData);
+      setClasses(response.data[0].classes);
+      setGroupNumbers(response.data[0].classes.map((c: ClassProp) => c.groupNumber).filter((v: number, i: number, a: number[]) => a.indexOf(v) === i));
     } catch (error) {
       console.error('Error fetching course details:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
-  const handleBack = () => {
-    // const navAny = navigation as any;
-    // if (navAny?.canGoBack && navAny?.canGoBack()) {
-    // navAny.goBack();
-    // } else {
-    router.push('/feed');
-    // }
-  }
-
   useEffect(() => {
-    setLoading(true);
     fetchCourseDetails();
-    setTimeout(() => setLoading(false), 400);
-  }, [id]);
+  }, [courseId]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchCourseDetails();
+    setRefreshing(false);
+  }, []);
+
+  const handleEnroll = async () => {
+    try {
+      const response = await api.post(API_PATHS.postOrderCourse, {
+        courseId: course?.id,
+        groupNumber: groupNumbers[0],
+      })
+      const { sessionUrl } = response.data;
+      console.log('Starting payment with session URL:', sessionUrl);
+      if (!sessionUrl) return;
+      startPayment(sessionUrl, () => {
+        console.log('Payment successful!');
+        router.replace('/courses')
+      });
+    } catch (error) {
+      console.error('Error initiating enrollment:', error);
+    }
+  }
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
-        <Spinner size='large' />
+      <SafeAreaView className="flex-1" edges={['left', 'right']}>
+        <ScrollView
+          contentContainerStyle={{ padding: 16 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-4">
+            <Skeleton className="h-8 w-3/4 mb-2 rounded-lg" />
+            <Skeleton className="h-4 w-full mb-2 rounded-lg" />
+            <Skeleton className="h-4 w-full mb-2 rounded-lg" />
+            <Skeleton className="h-4 w-1/2 mb-2 rounded-lg" />
+            <Divider className="my-2" />
+            <Skeleton className="h-6 w-1/3 mb-2 rounded-lg" />
+            <Skeleton className="h-10 w-full rounded-lg mt-4" />
+          </Box>
+        </ScrollView>
       </SafeAreaView>
     )
   }
-
-  if (!courseDetails) {
-    return (
-      <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
-        <Text>No data</Text>
-      </SafeAreaView>
-    )
-  }
-
-  const course = courseDetails.courseData;
-  const upcoming = (courseDetails.classes || [])
-    .map(c => ({ ...c, startDate: new Date(c.startDate), endDate: new Date(c.endDate) }))
-    .sort((a, b) => (a.startDate as Date).getTime() - (b.startDate as Date).getTime())
-    .slice(0, 10);
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-4" edges={['left', 'right', 'bottom']}>
-      <Pressable
-        onPress={handleBack}
-        accessibilityLabel="Back"
-        style={{
-          position: 'absolute',
-          top: 8,
-          right: 8,
-          zIndex: 20,
-          padding: 8,
-          borderRadius: 20,
-        }}
+    <SafeAreaView className="flex-1" edges={['left', 'right']}>
+      <ScrollView
+          contentContainerStyle={{ padding: 16 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <Text style={{ fontSize: 20 }}>←</Text>
-      </Pressable>
-
-      <Heading size="lg" className="mb-2">{course.name}</Heading>
-      <Text className="mb-2">{course.description}</Text>
-      <View style={{ alignItems: 'flex-end', marginBottom: 12 }}>
-        <Pressable
-          onPress={() => {}}
-          accessibilityLabel="Purchase"
-          style={{
-            backgroundColor: '#16a34a', // zielony
-            paddingVertical: 8,
-            paddingHorizontal: 14,
-            borderRadius: 8,
-            minWidth: 96,
-            alignItems: 'center',
-            elevation: 2,
-          }}
-        >
-          <Text style={{ color: '#ffffff', fontWeight: '600' }}>Purchase</Text>
-        </Pressable>
-      </View>
-      <Box className="mb-3">
-        <View style={{ marginBottom: 6 }}>
-          <Text className="font-semibold">Dance Category</Text>
-          <Text>{course.danceCategory?.name ?? '—'}</Text>
-        </View>
-        <View style={{ marginBottom: 6 }}>
-          <Text className="font-semibold">Advancement</Text>
-          <Text>{course.advancementLevel?.name ?? '—'}</Text>
-        </View>
-        <View style={{ marginBottom: 6 }}>
-          <Text className="font-semibold">Price</Text>
-          <Text>{course.coursePrice ?? '—'}</Text>
-        </View>
-        <View>
-          <Text className="font-semibold">Instructors</Text>
-          <Text>{(course.instructors || []).map(i => `${i.name} ${i.surname}`).join(', ') || '—'}</Text>
-        </View>
-      </Box>
-
-      <Heading size="md" className="mb-2">Upcoming classes</Heading>
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        {upcoming.length === 0 && <Text>No upcoming classes</Text>}
-
-        {upcoming.map((c) => {
-          const start = c.startDate as Date;
-          const end = c.endDate as Date;
-          const { day, startTime, endTime } = formatDateRange(start, end);
-          const color = c.classTemplate?.scheduleTileColor || '#4f46e5';
-          const bgColor = (color.startsWith('#') ? color + '20' : color);
-          return (
-            <Card
-              key={c.id}
-              size="md"
-              variant="outline"
-              style={{
-                marginBottom: 12,
-                backgroundColor: bgColor,
-                borderColor: color,
-                padding: 12,
-              }}
-            >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                <Text className="font-semibold">{c.classTemplate?.name ?? 'Event'}</Text>
-                <Text>{day}</Text>
-              </View>
-
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                <Text>{startTime} - {endTime}</Text>
-                <Text>Room: {c.classRoomId ?? '—'}</Text>
-              </View>
-
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text>Group: {c.groupNumber ?? '—'}</Text>
-                <Text>{(c.instructors || []).map(i => i.name).join(', ') || '—'}</Text>
-              </View>
-            </Card>
-          );
-        })}
+        <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
+          <Heading className="text-2xl mb-2">{course?.name}</Heading>
+          <Text className="text-gray-600 dark:text-gray-300 mb-2">{course?.description}</Text>
+          <Divider className="my-2" />
+          <Text className="text-md font-semibold mb-2">Instructors: {course?.instructors.map(i => `${i.name} ${i.surname}`).join(', ')}</Text>
+          <Badge variant="outline" action="info" className="self-start rounded-lg mb-2">
+            <Text className="text-md">{course?.courseStatus}</Text>
+          </Badge>
+          <Box className="flex-row flex-wrap justify-between mb-4">
+            <Badge variant="outline" action="warning" className="mr-2 rounded-lg">
+              <Text className="text-md">{course?.danceCategory.name}-{course?.advancementLevel.name}</Text>
+            </Badge>
+            <Badge variant="outline" action="success" className="mr-2 rounded-lg">
+              <Text className="text-md">Price: {course?.price}</Text>
+            </Badge>
+          </Box>
+          <Button action={!(course?.courseStatus === 'SALE') ? 'secondary' : 'positive'} className="mx-4" onPress={handleEnroll} disabled={!(course?.courseStatus === 'SALE')}>
+            <ButtonText>Enroll Now</ButtonText>
+          </Button>
+          <CourseClasses classes={classes.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).slice(0,6)} />
+        </Box>
       </ScrollView>
     </SafeAreaView>
   )

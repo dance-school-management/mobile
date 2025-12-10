@@ -66,7 +66,7 @@ export function GlobalDrawer({ children }: { children: React.ReactNode; }) {
         <VStack className="w-full flex-1 items-center gap-2">
           <DrawerButton
             icon={User}
-            onClick={() => router.push('/settings/profile')}
+            onClick={() => router.push('/(feed)/profile')}
             text="My Profile"
           />
           <DrawerButton icon={Home} text="Saved Address" />

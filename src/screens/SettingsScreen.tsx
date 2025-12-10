@@ -4,6 +4,8 @@ import * as Notifications from 'expo-notifications';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Divider, Spinner, Switch, Text, VStack } from '@/components/ui';
 import { RefreshControl, ScrollView } from 'react-native';
+import { Box } from '@/components/ui/box';
+import { Button, ButtonText } from '@/components/ui/button';
 
 export default function SettingsScreen() {
   const [enabledNotifications, setEnabledNotifications] = useState(false);
@@ -79,29 +81,53 @@ export default function SettingsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-black" edges={['top', 'left', 'right']}>
+      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-black" edges={['left', 'right']}>
         <Spinner size="large" />
       </SafeAreaView>
     )
   }
 
   return (
-    <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
+    <SafeAreaView className="flex-1" edges={['left', 'right']}>
       <ScrollView className="flex-1 my-4 px-4" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <VStack className="mb-2">
-          <Text className="text-lg font-medium mb-2">Notifications Settings</Text>
-          <Divider />
-          <VStack>
-            <VStack className="flex-row justify-between items-center">
-              <Text className="text-base">Enable Notifications</Text>
-              <Switch value={enabledNotifications} onValueChange={updateNotifications}/>
-            </VStack>
-            <VStack className="flex-row justify-between items-center">
-              <Text className="text-base">Enable Push Notifications</Text>
-              <Switch value={enabledPushNotifications} onValueChange={updatePushNotifications} disabled={!enabledNotifications}/>
-            </VStack>
-          </VStack>
-        </VStack>
+        <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-4">
+          <Box className="mb-2">
+            <Text className="text-lg font-medium mb-2">Notifications Settings</Text>
+            <Divider />
+            <Box className="mt-2">
+              <VStack className="flex-row justify-between items-center">
+                <Text className="text-base">Enable Notifications</Text>
+                <Switch value={enabledNotifications} onValueChange={updateNotifications}/>
+              </VStack>
+              <VStack className="flex-row justify-between items-center">
+                <Text className="text-base">Enable Push Notifications</Text>
+                <Switch value={enabledPushNotifications} onValueChange={updatePushNotifications} disabled={!enabledNotifications}/>
+              </VStack>
+            </Box>
+          </Box>
+          <Box className="mb-2">
+            <Text className="text-lg font-medium mb-2">Camera Settings</Text>
+            <Divider />
+            <Box className="mt-2">
+              <VStack className="flex-row justify-between items-center">
+                <Text className="text-base">Enable Camera</Text>
+                <Switch value={true} onValueChange={() => {}}/>
+              </VStack>
+            </Box>
+          </Box>
+          <Box className="mb-2">
+            <Text className="text-lg font-medium mb-2">Profile Settings</Text>
+            <Divider />
+            <Box className="mt-2">
+                <Button size="sm" action="secondary" className="my-1" onPress={() => {}}>
+                  <ButtonText>Change Password</ButtonText>
+                </Button>
+                <Button size="sm" action="negative" className="my-1" onPress={() => {}}>
+                  <ButtonText>Delete Profile</ButtonText>
+                </Button>
+            </Box>
+          </Box>
+        </Box>
       </ScrollView>
     </SafeAreaView>
   );

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Alert } from '@/components/ui/alert';
+import { Alert, AlertText } from '@/components/ui/alert';
 import { Button, ButtonText } from '@/components/ui/button';
 import { router } from 'expo-router';
 
@@ -57,8 +57,10 @@ export default function QRScanner() {
 
         {scannedData && (
           <View pointerEvents="none" className="absolute top-4 left-4 right-4">
-            <Alert variant="outline">
-              <Text className="text-typography-950">Scanned Data: {scannedData}</Text>
+            <Alert variant="solid" action="success">
+              {/*<Text className="text-typography-950">Scanned Data: {scannedData}</Text>*/}
+              {/*<Text className="text-typography-950">Valid ticket</Text>*/}
+              <AlertText>Valid ticket</AlertText>
             </Alert>
           </View>
         )}

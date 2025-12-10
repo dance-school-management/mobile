@@ -106,7 +106,7 @@ export default function RegistrationScreen() {
           <ButtonText>Login</ButtonText>
         </Button>
       </Link>
-      <Link href={'/(drawer)/(tabs)/feed'} asChild>
+      <Link href={'/(drawer)/(tabs)/home'} asChild>
         <Button>
           <ButtonText>Go to app</ButtonText>
         </Button>

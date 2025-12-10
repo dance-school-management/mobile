@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LoginFormData, LoginFormSchema } from '@/util/types/types';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useSessionQuery } from '@/lib/auth/session';
 import { useLoginMutation } from '@/lib/auth/login';
-import { useLogoutMutation } from '@/lib/auth/logout';
 import { View } from 'react-native';
 import { Button, ButtonText, Text, VStack } from '@/components/ui';
 import MyFormControl from '@/components/login_registration/MyFormControl';
@@ -19,7 +18,6 @@ export default function LoginScreen() {
   } = useSessionQuery();
 
   const loginMutation = useLoginMutation();
-  const logoutMutation = useLogoutMutation();
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof LoginFormData, string>>
@@ -43,25 +41,11 @@ export default function LoginScreen() {
     console.log('Form submitted:', formData);
   };
 
-  if (sessionData?.data?.user) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text className="text-xl py-4">You are logged in</Text>
-        <Button
-          onPress={() => {
-            logoutMutation.mutate();
-          }}
-        >
-          <ButtonText>Logout</ButtonText>
-        </Button>
-        <Link href={'/(drawer)/(tabs)/feed'} asChild>
-          <Button className="my-4">
-            <ButtonText>Go to app</ButtonText>
-          </Button>
-        </Link>
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (sessionData?.data?.user) {
+      setTimeout(() => router.replace('/home'), 200);
+    }
+  }, [sessionData]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

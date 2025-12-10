@@ -1,4 +1,4 @@
-import { Image } from 'react-native';
+import { Image, Dimensions } from 'react-native';
 import React, { useEffect } from 'react';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
@@ -7,18 +7,21 @@ import {
   TicketsIcon,
   CalendarIcon,
   ChartColumnIcon,
-  NotebookTextIcon,
   SettingsIcon,
+  NewspaperIcon,
+  LogOutIcon,
+  BookUpIcon
 } from 'lucide-react-native';
 import { router, usePathname } from 'expo-router';
 import { User } from 'lucide-react-native';
-import BellButton from '@/components/notification/bellButton';
 import { Button, ButtonText, Pressable, Text, View } from '@/components/ui';
 import { useSessionQuery } from '@/lib/auth/session';
 import { useLogoutMutation } from '@/lib/auth/logout';
-import { queryClient } from '../../../lookup/src/api';
+import { Role } from '@/util/types/roles';
+import { Divider } from '@/components/ui/divider';
+import { queryClient } from '../_layout';
 
-const CustomDrawerContent = (props) => {
+const CustomDrawerContent = (props : any) => {
   const pathname = usePathname();
 
   useEffect(() => {
@@ -32,6 +35,7 @@ const CustomDrawerContent = (props) => {
     refetch: refetchSession,
   } = useSessionQuery();
 
+  // @ts-ignore
   const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
 
   const menuItemsByRole: Record<
@@ -44,23 +48,100 @@ const CustomDrawerContent = (props) => {
     }>
   > = {
     STUDENT: [
-      { label: 'Home', route: '/(drawer)/(tabs)/feed', icon: HomeIcon, pathMatch: '/feed' },
-      { label: 'My Tickets', route: '/(drawer)/(tabs)/tickets', icon: TicketsIcon, pathMatch: '/tickets' },
-      { label: 'Schedule', route: '/schedule', icon: CalendarIcon, pathMatch: '/schedule' },
-      { label: 'My progress', route: '/progress', icon: ChartColumnIcon, pathMatch: '/progress' },
-      { label: 'Contact', route: '/contact', icon: NotebookTextIcon, pathMatch: '/contact' },
-      { label: 'Our instructors', route: '/instructors', icon: User, pathMatch: '/instructors' },
-      { label: 'Settings', route: '/settings', icon: SettingsIcon, pathMatch: '/settings' },
+      {
+        label: 'Home',
+        route: '/(tabs)/home',
+        icon: HomeIcon,
+        pathMatch: '/home',
+      },
+      {
+        label: 'Schedule',
+        route: '/(tabs)/schedule',
+        icon: CalendarIcon,
+        pathMatch: '/schedule',
+      },
+      {
+        label: 'Tickets',
+        route: '/(tabs)/tickets',
+        icon: TicketsIcon,
+        pathMatch: '/tickets',
+      },
+      {
+        label: 'Progress',
+        route: '/(tabs)/progress',
+        icon: ChartColumnIcon,
+        pathMatch: '/progress',
+      },
+      {
+        label: 'Courses',
+        route: '/(tabs)/courses',
+        icon: BookUpIcon,
+        pathMatch: '/courses',
+      },
+      {
+        label: 'Blog',
+        route: '/(tabs)/blogs',
+        icon: NewspaperIcon,
+        pathMatch: '/blogs',
+      },
+      {
+        label: 'Instructors',
+        route: '/(tabs)/instructors',
+        icon: User,
+        pathMatch: '/instructors',
+      },
+      {
+        label: 'Settings',
+        route: '/(tabs)/settings',
+        icon: SettingsIcon,
+        pathMatch: '/settings',
+      },
     ],
     INSTRUCTOR: [
-      { label: 'Home', route: '/(drawer)/(tabs)/feed', icon: HomeIcon, pathMatch: '/feed' },
-      { label: 'Schedule', route: '/schedule', icon: CalendarIcon, pathMatch: '/schedule' },
-      { label: 'Our instructors', route: '/instructors', icon: User, pathMatch: '/instructors' },
-      { label: 'Settings', route: '/settings', icon: SettingsIcon, pathMatch: '/settings' },
+      {
+        label: 'Home',
+        route: '/(tabs)/home',
+        icon: HomeIcon,
+        pathMatch: '/home',
+      },
+      {
+        label: 'Schedule',
+        route: '/(tabs)/schedule',
+        icon: CalendarIcon,
+        pathMatch: '/schedule',
+      },
+      {
+        label: 'Blog',
+        route: '/(tabs)/blogs',
+        icon: NewspaperIcon,
+        pathMatch: '/blogs',
+      },
+      {
+        label: 'Instructors',
+        route: '/(tabs)/instructors',
+        icon: User,
+        pathMatch: '/instructors',
+      },
+      {
+        label: 'Settings',
+        route: '/(tabs)/settings',
+        icon: SettingsIcon,
+        pathMatch: '/settings',
+      },
     ],
     COORDINATOR: [
-      { label: 'Home', route: '/(drawer)/(tabs)/feed', icon: HomeIcon, pathMatch: '/feed' },
-      { label: 'Schedule', route: '/schedule', icon: CalendarIcon, pathMatch: '/schedule' },
+      {
+        label: 'Home',
+        route: '/(tabs)/home',
+        icon: HomeIcon,
+        pathMatch: '/home',
+      },
+      {
+        label: 'Schedule',
+        route: '/(tabs)/schedule',
+        icon: CalendarIcon,
+        pathMatch: '/schedule',
+      },
     ],
   };
 
@@ -73,7 +154,7 @@ const CustomDrawerContent = (props) => {
             <>
               <Pressable
                 onPress={() => {
-                  router.push('/(drawer)/profile');
+                  router.push('/(drawer)/(tabs)/profile');
                 }}
               >
                 <Image
@@ -85,13 +166,6 @@ const CustomDrawerContent = (props) => {
               <Text className="text-16 italic">
                 {sessionData.data?.user.email}
               </Text>
-              <Button
-                onPress={() => {
-                  logoutMutation.mutate();
-                }}
-              >
-                <ButtonText>Logout</ButtonText>
-              </Button>
             </>
           )}
         </View>
@@ -99,7 +173,6 @@ const CustomDrawerContent = (props) => {
       {menuItemsByRole[role].map((item) => (
         <DrawerItem
           key={item.label}
-          className="font-18"
           icon={({ size }) => (
             <item.icon size={size} color={pathname == item.pathMatch ? '#fff' : '#000'} />
           )}
@@ -110,55 +183,37 @@ const CustomDrawerContent = (props) => {
           style={{ backgroundColor: pathname == item.pathMatch ? '#333' : '#fff' }}
           onPress={() => {
             router.push(item.route);
+            props.navigation.closeDrawer?.();
           }}
         />
       ))}
+      <Divider className="my-2" />
+      <DrawerItem
+        icon={({ size }) => (
+          <LogOutIcon size={size} />
+        )}
+        labelStyle={[{ color: '#000' }]}
+        label="Logout"
+        onPress={() => {
+          logoutMutation.mutate();
+          queryClient.removeQueries({ queryKey: ['session'], exact: true });
+          queryClient.setQueryData(['session'], null);
+          router.replace('/');
+        }}
+      />
     </DrawerContentScrollView>
   );
 };
 
 export default function Layout() {
-  const { data: sessionData } = useSessionQuery();
-  const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
-
-  const screensByRole: Record<Role, Array<{ name: string, title: string }>> = {
-    STUDENT: [
-      { name: "schedule", title: "Schedule" },
-      { name: "progress", title: "Progress" },
-      { name: "contact", title: "Contact" },
-      { name: "tickets", title: "Tickets" },
-      { name: "instructors", title: "Instructors" },
-      { name: "profile", title: "Profile" },
-      { name: "settings", title: "Settings" },
-      { name: "notifications", title: "NotificationsScreen" },
-      { name: "course", title: "Course" },
-      { name: "instructor_profile", title: "Instructor Profile" },
-    ],
-    INSTRUCTOR: [
-      { name: "schedule", title: "Schedule" },
-      { name: "settings", title: "Settings" },
-      { name: "instructors", title: "Instructors" },
-      { name: "notifications", title: "NotificationsScreen" },
-      { name: "instructor_profile", title: "Instructor Profile" },
-      { name: "profile", title: "Profile" },
-    ],
-    COORDINATOR: [
-      { name: "schedule", title: "Schedule" }
-    ]
-  }
+  const { width: windowWidth } = Dimensions.get('window');
+  const drawerWidth = Math.max(200, Math.min(320, Math.round(windowWidth * 0.55)));
 
   return (
     <Drawer
       drawerContent={(props) => <CustomDrawerContent {...props} />}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, drawerStyle: { width: drawerWidth } }}
     >
-      {screensByRole[role].map((screen) => (
-        <Drawer.Screen
-          key={screen.name}
-          name={screen.name}
-          options={{ headerTitle: screen.title, headerShown: true, headerRight: () => <BellButton /> }}
-        />
-      ))}
     </Drawer>
   );
 }

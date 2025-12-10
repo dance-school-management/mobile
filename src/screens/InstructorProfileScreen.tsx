@@ -1,348 +1,140 @@
 import {
-  ChevronDown,
-  ChevronRight,
-  GraduationCap,
   Mail,
   Phone,
 } from 'lucide-react-native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
-  Dimensions,
   Image,
   RefreshControl,
   ScrollView,
   Text,
-  View,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useInstructor } from '@/hooks/useInstructor';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  Accordion,
-  AccordionContent,
-  AccordionHeader,
-  AccordionIcon,
-  AccordionItem,
-  AccordionTitleText,
-  AccordionTrigger,
-  Avatar,
-  AvatarImage,
-  Badge,
-  BadgeText,
   Box,
-  Card,
-  Center,
-  Divider,
-  Heading,
-  HStack,
-  Spinner,
-  VStack,
+  Badge,
+  Skeleton
 } from '@/components/ui';
-import banner from '../../assets/img/banner.png';
-import { BarChart } from 'react-native-gifted-charts';
-
-const danceCategories = [
-  { id: 1, name: 'Tango' },
-  { id: 2, name: 'Waltz' },
-  { id: 3, name: 'Samba' },
-  { id: 4, name: 'Rumba' },
-  { id: 5, name: 'Cha-Cha' },
-  { id: 6, name: 'Foxtrot' },
-  { id: 7, name: 'Jive' },
-  { id: 8, name: 'Paso Doble' },
-  { id: 9, name: 'Quickstep' },
-  { id: 10, name: 'Viennese Waltz' },
-];
-
-const classesData = [
-  {
-    id: 1,
-    name: 'Tango Beginners',
-    startDate: new Date('2024-07-01T18:00:00'),
-    endDate: new Date('2024-07-01T19:30:00'),
-    classRoom: 'Room A',
-    peopleLimit: 12,
-    classStatus: 'PRIVATE_CLASS',
-  },
-  {
-    id: 2,
-    name: 'Waltz Intermediate',
-    startDate: new Date('2024-07-03T17:00:00'),
-    endDate: new Date('2024-07-03T18:30:00'),
-    classRoom: 'Room B',
-    peopleLimit: 10,
-    classStatus: 'PRIVATE_CLASS',
-  },
-  {
-    id: 3,
-    name: 'Samba Advanced',
-    startDate: new Date('2024-07-05T19:00:00'),
-    endDate: new Date('2024-07-05T20:30:00'),
-    classRoom: 'Room C',
-    peopleLimit: 8,
-    classStatus: 'PRIVATE_CLASS',
-  },
-];
-
-const accountData = [
-  {
-    iconName: GraduationCap,
-    subText: 'My classes',
-    endIcon: ChevronRight,
-    data: classesData,
-  },
-  // {
-  //   iconName: Settings,
-  //   subText: 'App preferences',
-  //   endIcon: ChevronRight,
-  //   data: classesData,
-  // },
-  // {
-  //   iconName: LogOut,
-  //   subText: 'Log out',
-  //   endIcon: ChevronRight,
-  //   data: classesData,
-  // },
-];
+import api from '@/server/axios';
+import { API_PATHS } from '@/util/endpoints';
+import { Instructor } from '@/util/types/instructors';
+import BarChartComponent from '@/components/charts/BarChartComponent';
+import { getDateYearsAfter } from '@/util/dates';
+import { ScheduleItem } from '@/util/types/schedule';
+import InstructorClasses from '@/components/instructor/InstructorClasses'
 
 export default function InstructorProfileScreen() {
-  const [openIndexes, setOpenIndexes] = useState<boolean[]>(
-    accountData.map(() => false)
-  );
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { instructorId } = useLocalSearchParams();
+  const [instructor, setInstructor] = useState<Instructor>();
+  const [instructorClasses, setInstructorClasses] = useState<ScheduleItem[]>([]);
 
-  const screenWidth = Dimensions.get('window').width;
-
-  function handlePress(index: number) {
-    setOpenIndexes((prev) =>
-      prev.map((open, i) => (i === index ? !open : open))
-    );
+  const fetchInstructorClasses = async () => {
+    try {
+      const response = await api.get(`${API_PATHS.getSchedule}?dateFrom=${new Date().toISOString()}&dateTo=${getDateYearsAfter(new Date(), 1).toISOString()}`);
+      const data = response.data as ScheduleItem[];
+      setInstructorClasses(data.filter(item => item.instructors.some(instr => instr.id === instructorId)));
+    } catch (error) {
+      console.error('Error fetching instructor classes:', error);
+    }
   }
 
-  const { instructorId } = useLocalSearchParams();
-  const {
-    data: instructorData,
-    error: instructorError,
-    isLoading: instructorIsLoading,
-    refetch: refetchInstructor,
-  } = useInstructor(instructorId as string);
+  const fetchInstructor = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`${API_PATHS.getInstructors}/${instructorId}`);
+      setInstructor(response.data);
+      await fetchInstructorClasses();
+    } catch (error) {
+      console.error('Error fetching instructor:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInstructor();
+  }, [instructorId]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refetchInstructor();
-    console.log(instructorData);
+    await fetchInstructor();
     setRefreshing(false);
   }, []);
 
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1" edges={['left', 'right']}>
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-4">
+            <Box className="items-center mb-4">
+              <Skeleton className="w-32 h-32 rounded-full" />
+              <Skeleton className="h-8 w-48 mt-4" />
+              <Skeleton className="h-4 w-64 mt-2" />
+              <Skeleton className="h-4 w-48 mt-2" />
+            </Box>
+            <Skeleton className="h-4 w-full mt-2" />
+            <Skeleton className="h-4 w-full mt-2" />
+            <Skeleton className="h-4 w-full mt-2" />
+          </Box>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView>
-      <VStack className="h-full w-full mb-16 md:mb-0">
+    <SafeAreaView className="flex-1" edges={['left', 'right']}>
         <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-          }}
+          style={{ padding: 16 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          {instructorIsLoading && !refreshing ? (
-            <Center className="flex-1 justify-center items-center h-[320px]">
-              <Spinner size={'large'} />
-            </Center>
-          ) : (
-            <>
-              <Box className="relative w-full h-[320px]">
-                <Image
-                  source={banner}
-                  className="w-[100%] h-[100%] object-cover"
-                />
-              </Box>
-              <Center className="absolute md:mt-14 mt-6 w-full md:px-10 md:pt-6 pb-4">
-                <VStack space="lg" className="items-center ">
-                  <Avatar className="w-48 h-48  bg-primary-600">
-                    <AvatarImage
-                      className="w-[100%] h-[100%]"
-                      alt="Profile Image"
-                      source={{
-                        uri: `http://localhost:8000/profile/${instructorData?.photoPath}`,
-                      }}
-                    />
-                  </Avatar>
-                </VStack>
-                <VStack className="mt-2 gap-1 w-full items-center">
-                  <Text className="text-4xl font-semibold text-dark">
-                    {instructorData?.name + ' ' + instructorData?.surname ||
-                      'No name provided'}
-                  </Text>
-                  <VStack className="gap-2 align-items-start">
-                    <Box className="flex flex-row items-center gap-2">
-                      <Phone size={20} color="black" />
-                      <Text className="font-medium text-xl">
-                        {instructorData?.phone || 'No number provided'}
-                      </Text>
-                    </Box>
-                    <Box className="flex flex-row items-center gap-2">
-                      <Mail size={20} color="black" />
-                      <Text className="font-medium text-xl">
-                        {instructorData?.email || 'No email provided'}
-                      </Text>
-                    </Box>
-                  </VStack>
-                </VStack>
-              </Center>
-              <VStack className="m-5 items-start w-full">
-                <Heading className="text-2xl my-2">Specializations:</Heading>
-                <View className="flex flex-row flex-wrap w-5/6 gap-1">
-                  {instructorData?.favouriteDanceCategories.map(
-                    (entry, index) => (
-                      <Badge
-                        key={index}
-                        variant="solid"
-                        action="info"
-                        className="rounded-full max-w-full"
-                      >
-                        <BadgeText className="font-monospace text-xl">
-                          {entry}
-                        </BadgeText>
-                      </Badge>
-                    )
-                  )}
-                </View>
-                <Heading className="text-2xl mt-2">About me: </Heading>
-                <Text className="text-xl leading-6 text-left mt-2 mb-4 mx-2 w-5/6">
-                  {instructorData?.description || 'No description provided. '}
-                </Text>
-                <Accordion
-                  size="md"
-                  variant="filled"
-                  type="single"
-                  isCollapsible={true}
-                  isDisabled={false}
-                  className="w-[90%] border border-outline-200 "
+          <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-4">
+            <Box className="items-center mb-4">
+              <Image
+                source={{ uri: `https://randomuser.me/api/portraits/men/${instructorId}.jpg` }}
+                className="w-32 h-32 rounded-full"
+              />
+              <Text className="text-2xl font-bold text-black dark:text-white mt-4">
+                {instructor?.name} {instructor?.surname}
+              </Text>
+              <Text className="text-gray-600 dark:text-gray-300 mr-4">
+                <Mail size={16} className="inline-block mr-1" />
+                {instructor?.email}
+              </Text>
+              <Text className="text-gray-600 dark:text-gray-300">
+                <Phone size={16} className="inline-block mr-2" />
+                {instructor?.phone}
+              </Text>
+            </Box>
+            <Text className="text-black dark:text-white">
+              {instructor?.description}
+            </Text>
+            <Text className="text-black dark:text-white mt-4 font-semibold">
+              Specializations:
+            </Text>
+            <Box className="flex-row flex-wrap mt-2">
+              {instructor?.favouriteDanceCategories.map((spec) => (
+                <Badge
+                  key={spec}
+                  variant="outline"
+                  action="info"
+                  className="mr-2 mb-2 rounded-lg"
                 >
-                  {accountData.map((item, index) => {
-                    return (
-                      <React.Fragment key={index}>
-                        <AccordionItem value={index.toString()}>
-                          <AccordionHeader>
-                            <AccordionTrigger>
-                              {({ isExpanded }) => {
-                                return (
-                                  <>
-                                    <AccordionTitleText>
-                                      {item.subText}
-                                    </AccordionTitleText>
-                                    {isExpanded ? (
-                                      <AccordionIcon
-                                        as={ChevronRight}
-                                        className="ml-3"
-                                      />
-                                    ) : (
-                                      <AccordionIcon
-                                        as={ChevronDown}
-                                        className="ml-3"
-                                      />
-                                    )}
-                                  </>
-                                );
-                              }}
-                            </AccordionTrigger>
-                          </AccordionHeader>
-                          <AccordionContent>
-                            {item.data.map((classItem, itemIndex) => {
-                              return (
-                                <Card
-                                  className="p-5 rounded-lg max-w-[360px]"
-                                  key={itemIndex}
-                                >
-                                  <Text className="text-sm font-normal mb-2 text-typography-700">
-                                    {classItem.startDate.toLocaleString() +
-                                      ' - ' +
-                                      classItem.endDate.toLocaleString()}
-                                  </Text>
-                                  <VStack className="">
-                                    <Heading size="md" className="">
-                                      {classItem.name}
-                                    </Heading>
-                                    <Text className="text-sm font-normal mb-2 text-typography-700">
-                                      {classItem.classRoom}
-                                    </Text>
-                                    <HStack className="items-center gap-2">
-                                      <Badge
-                                        variant="solid"
-                                        action="warning"
-                                        className="rounded-full max-w-full"
-                                      >
-                                        <BadgeText className="font-monospace text-sm">
-                                          {classItem.peopleLimit} people limit
-                                        </BadgeText>
-                                      </Badge>
-                                      <Badge
-                                        variant="solid"
-                                        action="info"
-                                        className="rounded-full max-w-full"
-                                      >
-                                        <BadgeText className="font-monospace text-sm">
-                                          {classItem.classStatus
-                                            .replace('_', ' ')
-                                            .toLowerCase()}
-                                        </BadgeText>
-                                      </Badge>
-                                    </HStack>
-                                  </VStack>
-                                </Card>
-                              );
-                            })}
-                          </AccordionContent>
-                        </AccordionItem>
-                        <Divider />
-                      </React.Fragment>
-                    );
-                  })}
-                </Accordion>
-                <Heading size="lg" className="ml-2 mt-4">
-                  Time spent per dance category:
-                </Heading>
-                <View
-                  style={{
-                    marginLeft: -50,
-                    height: instructorData?.experience.length * 60,
-                    marginBottom: 20,
-                  }}
-                >
-                  <BarChart
-                    data={instructorData?.experience
-                      .sort((a, b) => b.spentHours - a.spentHours)
-                      .map((exp) => ({
-                        value: exp.spentHours,
-                        label: `${exp.danceCategoryName} - ${exp.advancementLevelName}`,
-                      }))}
-                    width={screenWidth - 50}
-                    horizontal
-                    barWidth={22}
-                    barBorderRadius={4}
-                    frontColor="#8888FF"
-                    yAxisThickness={0}
-                    xAxisThickness={0}
-                    yAxisAtTop
-                    disablePress
-                    initialSpacing={0}
-                    xAxisLabelTextStyle={{
-                      color: 'black',
-                      fontSize: 14,
-                      width: 300,
-                      includeFontPadding: false,
-                      textAlign: 'left',
-                      marginLeft: 40,
-                    }}
-                  />
-                </View>
-              </VStack>
-            </>
-          )}
+                  <Text className="text-sm">{spec}</Text>
+                </Badge>
+              ))}
+            </Box>
+            <InstructorClasses classes={instructorClasses.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).slice(0,4)} />
+            <BarChartComponent data={instructor?.experience?.map((exp) => ({
+              label: `${exp.danceCategoryName}`,
+              value: exp.spentHours,
+            })).sort((a, b) => b.value - a.value) ?? []} title="Time Spent on Classes (hrs)" />
+          </Box>
         </ScrollView>
-      </VStack>
     </SafeAreaView>
   );
 }

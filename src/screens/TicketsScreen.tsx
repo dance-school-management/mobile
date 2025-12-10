@@ -47,7 +47,10 @@ export default function TicketsScreen() {
       const response = await api.get(API_PATHS.getTickets);
       const data = response.data;
       console.log(data.tickets);
-      setTickets(data.tickets);
+      setTickets(data.tickets.map((ticket => ({
+        ...ticket,
+        qrCodeUUID: "77259d72-8594-4918-8bf4-fc754af1e7d7"
+      }))));
       setFilteredTickets(data.tickets);
     } catch (error) {
       console.error('Error fetching tickets:', error);

@@ -39,7 +39,7 @@ export const useRegisterMutation = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['session'] });
-      router.push('/(drawer)/(tabs)/feed');
+      router.push('/(drawer)/(tabs)/home');
     },
   });
 };

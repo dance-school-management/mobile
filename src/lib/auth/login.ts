@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '../../server/auth-client';
+import { authClient } from '@/server/auth-client';
 import { queryClient } from '@/app/_layout';
 import { useRouter } from 'expo-router';
 
@@ -32,7 +32,7 @@ export const useLoginMutation = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['session'] });
-      router.push('/(drawer)/(tabs)/feed');
+      router.push('/(drawer)/(tabs)/home');
     },
   });
 };

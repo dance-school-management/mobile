@@ -1,77 +1,30 @@
-import React, {useEffect, useState} from "react";
-import api from "@/server/axios";
+import React, { useCallback, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Box, Card, Heading, Pressable, Spinner, Text } from '@/components/ui';
-import {ScrollView} from "react-native-gesture-handler";
-import {router} from "expo-router";
-import { getApiUrl, API_PATHS } from '@/util/endpoints';
-
-interface CourseProp {
-    id: number;
-    name: string;
-    description: string;
-    danceCategoryId: number;
-    advancementLevelId: number;
-    courseStatus: string;
-    danceCategory: { id: number, name: string, description: string, photoPath: string};
-    advancementLevel: { id: number, name: string, description: string };
-    coursePrice: string;
-    instructors: { instructorId: number, instructorName: string, instructorSurname: string}[];
-}
+import PersonalWelcome from '@/components/home/PersonalWelcome'
+import PopularCoursesList from '@/components/home/PopularCoursesList'
+import PinnedBlogList from "@/components/home/PinnedBlogList";
+import { RefreshControl, ScrollView } from 'react-native';
 
 export default function HomeScreen() {
-    const [loading, setLoading] = useState<boolean>(true);
-    const [popularCourses, setPopularCourses] = useState<CourseProp[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-    const fetchPopularCourses = async () => {
-        try {
-            // const response = await api.get(`/product/pricing/most_popular_courses?startDateFrom=2025-01-01T00:00:00Z&startDateTo=2025-12-31T23:59:59Z&topK=${10}`);
-            const response = await api.get(getApiUrl(API_PATHS.getMostPopularCourses, { 'startDateFrom': '2025-01-01T00:00:00Z', 'startDateTo': '2025-12-31T23:59:59Z', 'topK': 10 }));
-            const data = response.data;
-            console.log(data);
-            setPopularCourses(data);
-        } catch (error) {
-            console.error('Error fetching popular courses:', error);
-        }
-    }
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setRefreshKey((prevKey) => prevKey + 1);
+    setTimeout(() => setRefreshing(false), 500);
+  }, []);
 
-    useEffect(() => {
-        fetchPopularCourses();
-        setTimeout(() => setLoading(false), 200);
-    }, []);
-
-    if (loading) {
-        return (
-            <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'bottom']}>
-                <Spinner size="large" />
-            </SafeAreaView>
-        )
-    }
-
-    return (
-        <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'bottom']}>
-            <ScrollView contentContainerStyle={{ padding: 16 }}>
-                <Box className="items-center mb-3">
-                    <Text className="text-3xl font-bold text-black">
-                        Popular Courses
-                    </Text>
-                </Box>
-                {popularCourses.map((course) => (
-                    <Pressable
-                        key={course.id}
-                        onPress={() => router.push(`/course?id=${course.id}`)}
-                    >
-                        <Card key={course.id} className="mb-4 p-4">
-                            <Heading className="text-xl font-semibold mb-2">{course.name}</Heading>
-                            <Text className="text-gray-700 mb-2">{course.description.slice(0, 100)}...</Text>
-                            <Text className="text-gray-500">Category: {course.danceCategory.name}</Text>
-                            <Text className="text-gray-500">Level: {course.advancementLevel.name}</Text>
-                            <Text className="text-gray-500">Price: {course.coursePrice}</Text>
-                            <Text className="text-gray-500">Instructors: {course.instructors.map(instr => `${instr.instructorName} ${instr.instructorSurname}`).join(', ')}</Text>
-                        </Card>
-                    </Pressable>
-                ))}
-            </ScrollView>
-        </SafeAreaView>
-    )
+  return (
+    <SafeAreaView className="flex-1 bg-slate-250 dark:bg-slate-900" edges={['left', 'right']}>
+      <ScrollView
+        contentContainerStyle={{ padding: 16 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <PersonalWelcome refreshKey={refreshKey} />
+        <PopularCoursesList refreshKey={refreshKey} />
+        <PinnedBlogList refreshKey={refreshKey} />
+      </ScrollView>
+    </SafeAreaView>
+  )
 }

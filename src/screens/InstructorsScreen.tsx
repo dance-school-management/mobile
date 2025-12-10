@@ -1,135 +1,75 @@
-import { useInstructors } from '@/hooks/useInstructors';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView } from 'react-native-gesture-handler';
-import { RefreshControl, View } from 'react-native';
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarImage,
-  Badge,
-  BadgeText,
-  Box,
-  Center,
-  HStack,
-  Spinner,
-  Text,
-  VStack,
-} from '@/components/ui';
-import { Link } from 'expo-router';
-import { exampleInstructorImage } from '../../assets/ts/img';
+import { RefreshControl, ScrollView } from 'react-native';
+import { InstructorShort } from '@/util/types/instructors';
+import api from '@/server/axios';
+import { API_PATHS } from '@/util/endpoints';
+import { Pressable } from '@/components/ui/pressable';
+import InstructorCard from '@/components/instructor/InstructorCard';
+import { Alert, AlertText } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { router } from 'expo-router';
 
 export default function InstructorsScreen() {
-  const {
-    data: instructorsData,
-    error: instructorsError,
-    isLoading: instructorsIsLoading,
-    refetch: refetchInstructors,
-  } = useInstructors();
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [instructors, setInstructors] = useState<InstructorShort[]>([]);
+
+  const fetchInstructors = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(API_PATHS.getInstructors);
+      setInstructors(response.data.instructors);
+    } catch (error) {
+      console.error('Error fetching instructors:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchInstructors();
+  }, []);
 
   const onRefresh = useCallback(async () => {
+    if (refreshing) return;
     setRefreshing(true);
-    await refetchInstructors();
+    await fetchInstructors();
     setRefreshing(false);
   }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <Skeleton className="h-30 w-full mt-4 mb-4" />
+          <Skeleton className="h-30 w-full mt-4 mb-4" />
+          <Skeleton className="h-30 w-full mt-4 mb-4" />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'bottom']}>
+    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
       <ScrollView
         contentContainerStyle={{ padding: 16 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {instructorsIsLoading && !refreshing ? (
-          <Center className="flex-1 justify-center items-center h-[320px]">
-            <Spinner size={'large'} />
-          </Center>
-        ) : (
-          <>
-            <Box className="items-center mb-3">
-              <Text className="text-3xl font-bold text-black">
-                Our Instructors
-              </Text>
-            </Box>
-
-            <VStack space="md">
-              {instructorsIsLoading && <Spinner className="self-center mt-4" />}
-              {instructorsError && (
-                <Text className="text-red-500 text-center">
-                  Error loading instructors: {instructorsError.message}
-                </Text>
-              )}
-              {instructorsData && instructorsData.instructors.length === 0 && (
-                <Text className="text-gray-500 text-center">
-                  No instructors available at the moment.
-                </Text>
-              )}
-              {instructorsData &&
-                instructorsData.instructors.length > 0 &&
-                instructorsData.instructors.map((instructor, index) => (
-                  <Link
-                    href={`/instructor_profile/${instructor.id}`}
-                    key={index}
-                  >
-                    {' '}
-                    <HStack
-                      className="justify-between items-center bg-white rounded-md"
-                      key={instructor.id}
-                    >
-                      <HStack space="md" className="p-2">
-                        <Avatar className="bg-primary-500">
-                          <AvatarFallbackText>
-                            {instructor.name} {instructor.surname}
-                          </AvatarFallbackText>
-                          {(() => {
-                            if (instructor.photoPath) {
-                              console.log(
-                                `http://localhost:8000/profile/${instructor.photoPath}`
-                              );
-                            }
-                            return null;
-                          })()}
-
-                          <AvatarImage
-                            source={
-                              instructor.photoPath
-                                ? {
-                                  uri: `http://localhost:8000/profile/${instructor.photoPath}`,
-                                }
-                                : exampleInstructorImage
-                            }
-                          />
-                        </Avatar>
-                        <VStack className="w-full" space="xs">
-                          <Text>
-                            {instructor.name} {instructor.surname}
-                          </Text>
-                          <Text size="sm" className="text-typography-500">
-                            Specializations:{' '}
-                          </Text>
-                          <View className="flex flex-row flex-wrap w-3/5 gap-1">
-                            {instructor.favouriteDanceCategories.map(
-                              (spec, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="solid"
-                                  action="info"
-                                  size="md"
-                                  className="rounded-md"
-                                >
-                                  <BadgeText>{spec}</BadgeText>
-                                </Badge>
-                              )
-                            )}
-                          </View>
-                        </VStack>
-                      </HStack>
-                    </HStack>
-                  </Link>
-                ))}
-            </VStack>
-          </>
+        {instructors && instructors.length > 0 ? (
+          instructors.map((instructor) => (
+            <Pressable
+              key={instructor.id}
+              onPress={() => router.push(`/instructor/${instructor.id}`)}
+            >
+              <InstructorCard instructor={instructor} />
+            </Pressable>
+          ))) : (
+            <Alert action="info" className="mt-4">
+              <AlertText>No instructors found.</AlertText>
+            </Alert>
         )}
       </ScrollView>
     </SafeAreaView>
