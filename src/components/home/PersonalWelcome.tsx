@@ -47,7 +47,9 @@ export default function PersonalWelcome({ refreshKey }: { refreshKey?: number })
       <Heading className="text-2xl font-bold mb-2">
         Welcome {name}!
       </Heading>
-      <UpcomingClasses classes={todayClasses} />
+      {(role === 'STUDENT' || role === 'INSTRUCTOR') && (
+        <UpcomingClasses classes={todayClasses} />
+      )}
     </Box>
   )
 }

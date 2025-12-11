@@ -38,7 +38,7 @@ function AppContent() {
     const subscription = Notifications.addNotificationResponseReceivedListener(response => {
       const data = response.notification.request.content.data;
       if (data) {
-        router.push(`//(drawer)/(tabs)/notifications`)
+        router.push(`/notifications`)
       }
     });
     return () => subscription.remove();

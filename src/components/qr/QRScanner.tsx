@@ -1,0 +1,166 @@
+import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
+import { useState, useEffect, useRef } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, StyleSheet } from 'react-native';
+import { Text } from '@/components/ui/text';
+import { Alert } from '@/components/ui/alert';
+import { Button, ButtonText } from '@/components/ui/button';
+import api from '@/server/axios';
+import { API_PATHS, getApiUrl } from '@/util/endpoints';
+import { isAxiosError } from 'axios';
+
+export default function QRScanner() {
+  const [facing, setFacing] = useState<CameraType>('back');
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [ready, setReady] = useState(false);
+  const [isValid, setIsValid] = useState<boolean>(false);
+  const [showScanMessage, setShowScanMessage] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
+
+  const [scanningEnabled, setScanningEnabled] = useState<boolean>(true);
+  const [canRescan, setCanRescan] = useState<boolean>(true);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+
+  const lastScanRef = useRef<number | null>(null);
+  const cooldownTimerRef = useRef<number | null>(null);
+  const countdownIntervalRef = useRef<number | null>(null);
+
+  const COOLDOWN_MS = 3000;
+  const DEBOUNCE_MS = 800;
+
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
+
+  if (!cameraPermission) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-black" edges={['top','left','right']}>
+        <Text>Requesting camera permission...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!cameraPermission.granted) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-black" edges={['top','left','right']}>
+        <Text className="mb-4">Camera permission is required to scan QR codes.</Text>
+        <Button onPress={requestCameraPermission}>
+          <ButtonText>Grant Permission</ButtonText>
+        </Button>
+      </SafeAreaView>
+    );
+  }
+
+  const startCooldown = () => {
+    setCanRescan(false);
+    setCooldownRemaining(Math.ceil(COOLDOWN_MS / 1000));
+
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    countdownIntervalRef.current = setInterval(() => {
+      setCooldownRemaining((s) => {
+        if (s <= 1) {
+          if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+            countdownIntervalRef.current = null;
+          }
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000) as unknown as number;
+
+    if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+    cooldownTimerRef.current = setTimeout(() => {
+      setCanRescan(true);
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+      setCooldownRemaining(0);
+    }, COOLDOWN_MS) as unknown as number;
+  };
+
+  const handleScan = async (event: BarcodeScanningResult) => {
+    if (!scanningEnabled) return;
+    const now = Date.now();
+    if (lastScanRef.current && now - lastScanRef.current < DEBOUNCE_MS) return;
+    lastScanRef.current = now;
+
+    setScanningEnabled(false);
+    startCooldown();
+
+    try {
+      const response = await api.get(getApiUrl(API_PATHS.getTicketValidation, { qrCodeUUID: event.data }));
+      const code = response.status;
+      if (code === 200) {
+        setIsValid(true);
+        setMessage('Valid ticket');
+      } else {
+        setIsValid(false);
+        setMessage('Invalid ticket');
+      }
+      setShowScanMessage(true);
+    } catch (err: unknown) {
+      let serverMessage = 'Error validating ticket';
+
+      if (isAxiosError(err) && err.response && err.response.data) {
+        const data = err.response.data as { message?: string };
+        if (data.message) serverMessage = data.message;
+        console.error('Ticket validation error response:', data);
+      } else {
+        console.error('Unexpected error validating ticket:', err);
+      }
+
+      setIsValid(false);
+      setMessage(serverMessage);
+      setShowScanMessage(true);
+    }
+  };
+
+  const handleScanAgain = () => {
+    if (!canRescan) return;
+    setShowScanMessage(false);
+    setMessage('');
+    setIsValid(false);
+    lastScanRef.current = null;
+    setScanningEnabled(true);
+    setCanRescan(false);
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-black" edges={['top','left','right','bottom']}>
+      <View className="flex-1">
+        <CameraView
+          key={facing}
+          style={StyleSheet.absoluteFill}
+          facing={facing}
+          onCameraReady={() => { setReady(true); console.log('Camera ready'); }}
+          onMountError={(e) => console.warn('Camera mount error', e)}
+          onBarcodeScanned={handleScan}
+          barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+        />
+
+        {showScanMessage && (
+          <View pointerEvents="none" className="absolute top-4 left-4 right-4">
+            <Alert variant="outline" action={isValid ? 'success' : 'error'}>
+              <Text className="text-typography-950">{message}</Text>
+            </Alert>
+          </View>
+        )}
+
+        {showScanMessage && (
+          <View className="absolute bottom-6 left-4 right-4 items-center">
+            <Button onPress={handleScanAgain} disabled={!canRescan}>
+              <ButtonText>
+                {canRescan ? 'Scan again' : `Wait ${cooldownRemaining}s`}
+              </ButtonText>
+            </Button>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
