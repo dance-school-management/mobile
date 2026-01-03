@@ -2,23 +2,15 @@ import { Card } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/pressable';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
-
-interface NotificationProp {
-  id: number,
-  title: string,
-  body: string,
-  sendDate: Date,
-  payload: object,
-  hasBeenRead: boolean,
-}
+import { NotificationProp } from '@/util/types/notification';
 
 export default function Notification({ notification, onPress }: { notification: NotificationProp, onPress: (notification: NotificationProp) => void }) {
     return (
         <Pressable onPress={() => onPress(notification)}>
             <Card
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md my-1 mx-2"
                 size="lg"
                 variant={notification.hasBeenRead ? "outline" : "elevated"}
-                className="m-2 border-2 border-solid border-slate-800"
                 style={notification.hasBeenRead ? { opacity: 0.5 } : undefined}
             >
                 <Heading size="lg" className="mb-1">{notification.title}</Heading>

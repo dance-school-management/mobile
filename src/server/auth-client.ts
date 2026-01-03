@@ -1,11 +1,10 @@
 import { createAuthClient } from 'better-auth/react';
 import { expoClient } from '@better-auth/expo/client';
 import * as SecureStore from 'expo-secure-store';
-import { Env } from '../../env';
-import { LOCAL_IP } from '@/server/axios'
+import Constants from 'expo-constants';
 
 export const authClient = createAuthClient({
-  baseURL: `http://${LOCAL_IP}:8000/auth/api/auth`,
+  baseURL: Constants.expoConfig?.extra.AUTH_URL,
   plugins: [
     expoClient({
       scheme: "Myexpo",

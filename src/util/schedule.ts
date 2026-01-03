@@ -1,3 +1,5 @@
+import { ScheduleItem, CalendarEvent } from "@/util/types/schedule";
+
 const getMondaySunday = (date: Date) => {
     const day = date.getDay();
     const diffToMonday = (day === 0 ? -6 : 1) - day;
@@ -24,81 +26,17 @@ const getDayEnd = (date: Date) => {
     return endOfDay;
 }
 
-interface EventProp {
-  id: number;
-  instructors: {
-    id: number;
-    name: string;
-    surname: string;
-  }
-  owned: boolean;
-  paymentStatus: string | null;
-  classTemplateId: number;
-  groupNumber: number;
-  startDate: Date;
-  endDate: Date;
-  peopleLimit: number;
-  classRoomId: number;
-  classStatus: string;
-  classTemplate: {
-    id: number;
-    courseId: number;
-    name: string;
-    description: string;
-    price: string;
-    currency: string;
-    danceCategoryId: number;
-    advancementLevelId: number;
-    classType: string;
-    scheduleTileColor: string;
-    danceCategory: {
-      id: number;
-      name: string;
-      description: string;
-      photoPath: string;
-    }
-    advancementLevel: {
-      id: number;
-      name: string;
-      description: string;
-    }
-    course: {
-      id: number;
-      name: string;
-      description: string;
-      danceCategoryId: number;
-      advancementLevelId: number;
-      courseStatus: string;
-      customPrice: string;
-    }
-  }
-}
-
-const formatEvent = (event : EventProp) => {
+const formatEvent = (event : ScheduleItem) : CalendarEvent => {
   return {
     id: event.id,
-    name: event.classTemplate.name,
+    title: event.classTemplate.name,
     description: event.classTemplate.description,
     start: { dateTime: event.startDate },
     end: { dateTime: event.endDate },
-    classroom: event.classRoomId,
-    classStatus: event.classStatus,
-    bgColor: event.classTemplate.scheduleTileColor,
+    classroom: event.classRoom,
     price: event.classTemplate.price,
-    currency: event.classTemplate.currency,
-    classType: event.classTemplate.classType,
-    danceCategory: event.classTemplate.danceCategory ? {
-      id: event.classTemplate.danceCategory.id,
-      name: event.classTemplate.danceCategory.name,
-    } : null,
-    advancementLevel: event.classTemplate.advancementLevel ? {
-      id: event.classTemplate.advancementLevel.id,
-      name: event.classTemplate.advancementLevel.name,
-    } : null,
-    course: event.classTemplate.course ? {
-      id: event.classTemplate.course.id,
-      name: event.classTemplate.course.name,
-    } : null,
+    danceCategory: event.classTemplate.danceCategory,
+    advancementLevel: event.classTemplate.advancementLevel,
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import api from '@/server/axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -10,32 +10,18 @@ import {
   InputIcon,
   InputSlot,
   SearchIcon,
-  Spinner,
   Text,
+  Skeleton,
 } from '@/components/ui';
-import { ScrollView } from 'react-native-gesture-handler';
 import { API_PATHS } from '@/util/endpoints';
 import Ticket from '@/components/ticket/ticket';
 import TicketDetails from '@/components/ticket/ticketDetails';
-
-interface TicketProp {
-  classId: number;
-  qrCodeUUID: string;
-  name: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  classRoomName: string;
-  danceCategoryName: string;
-  advancementLevelName: string;
-  price: number;
-  paymentStatus: string;
-  attendaceStatus: string;
-  attendaceLastUpdated: Date;
-}
+import { TicketProp } from '@/util/types/ticket';
+import { RefreshControl, ScrollView } from 'react-native';
 
 export default function TicketsScreen() {
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [tickets, setTickets] = useState<TicketProp[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<TicketProp[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketProp | null>(null);
@@ -44,27 +30,49 @@ export default function TicketsScreen() {
 
   const fetchTickets = async () => {
     try {
+      setLoading(true);
       const response = await api.get(API_PATHS.getTickets);
       const data = response.data;
-      console.log(data.tickets);
-      setTickets(data.tickets.map((ticket => ({
-        ...ticket,
-        qrCodeUUID: "77259d72-8594-4918-8bf4-fc754af1e7d7"
-      }))));
+      setTickets(data.tickets);
       setFilteredTickets(data.tickets);
     } catch (error) {
       console.error('Error fetching tickets:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
     fetchTickets();
-    setTimeout(() => setLoading(false), 200);
   }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchTickets();
+    setRefreshing(false);
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1" edges={['left', 'right']}>
+        <ScrollView style={{ padding: 8 }}>
+          <Skeleton className="h-12 w-full mt-4 mb-4" />
+          <Skeleton className="h-30 w-full mt-4 mb-4" />
+          <Skeleton className="h-30 w-full mt-4 mb-4" />
+          <Skeleton className="h-30 w-full mt-4 mb-4" />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1" edges={['left', 'right']}>
-      <ScrollView className="flex-1 pt-2">
+      <ScrollView
+        style={{ padding: 8 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Input className="m-1" size="xl" variant="rounded">
           <InputSlot className="pl-2">
             <InputIcon as={SearchIcon} />

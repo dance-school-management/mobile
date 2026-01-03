@@ -1,14 +1,14 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { Platform } from 'react-native';
 import { authClient } from './auth-client';
+import Constants from 'expo-constants';
 
-export const LOCAL_IP = '10.168.28.90';
-const ANDROID_IP = '10.0.2.2';
+const IP = Constants.expoConfig?.extra.IP;
 
 const defaultBase = Platform.select({
-  android: `http://${LOCAL_IP}:8000`,
-  ios: `http://${LOCAL_IP}:8000`,
-  default: `http://${LOCAL_IP}:8000`,
+  android: `http://${IP}:8000`,
+  ios: `http://${IP}:8000`,
+  default: `http://${IP}:8000`,
 }) as string;
 
 const api = axios.create({

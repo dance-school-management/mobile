@@ -61,7 +61,7 @@ export default function InstructorsScreen() {
         {instructors && instructors.length > 0 ? (
           instructors.map((instructor) => (
             <Pressable
-              key={instructor.id}
+              key={`instructor-${instructor.id}-${instructor.name}-${instructor.surname}`}
               onPress={() => router.push(`/instructor/${instructor.id}`)}
             >
               <InstructorCard instructor={instructor} />

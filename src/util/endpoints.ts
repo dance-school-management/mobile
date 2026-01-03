@@ -22,6 +22,12 @@ export const API_PATHS = {
     getProfile: '/profile/user/profile',
     changePassword: '/auth/api/auth/change-password',
     getInstructors: '/profile/public/instructors',
+    getNotifications: '/notification/notification',
+    putNotificationReadStatus: '/notification/notification/status',
+    getNotificationRegistrationStatus: '/notification/notification/status',
+    postRegisterPushNotifications: '/notification/notification/register',
+    postToggleNotifications: '/notification/notification/toggle',
+    putUnregisterPushNotifications: '/notification/push/unregister',
 }
 
 export const getApiUrl = (

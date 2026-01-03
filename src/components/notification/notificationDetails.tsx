@@ -14,15 +14,7 @@ import { Heading } from '@/components/ui/heading';
 import { Divider } from '@/components/ui/divider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '@/server/axios';
-
-interface NotificationProp {
-  id: number,
-  title: string,
-  body: string,
-  sendDate: Date,
-  payload: object,
-  hasBeenRead: boolean,
-}
+import { NotificationProp } from '@/util/types/notification';
 
 export default function NotificationDetails({ notification, visible, onClose } : { notification: NotificationProp | null, visible: boolean, onClose: () => void }) {
     const insets = useSafeAreaInsets();
@@ -33,7 +25,7 @@ export default function NotificationDetails({ notification, visible, onClose } :
           ids: [notification?.id], hasBeenRead: !notification?.hasBeenRead
         });
       } catch (error) {
-        console.error('Error marking notification as read:', error);
+        console.error('Error marking notification.ts as read:', error);
       }
     }
 

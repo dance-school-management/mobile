@@ -36,3 +36,16 @@ export interface ScheduleItemClassTemplate {
   advancementLevel: AdvancementLevel;
   course: Course;
 }
+
+export interface CalendarEvent {
+  id: number | string;
+  start: { dateTime: Date };
+  end: { dateTime: Date };
+  title: string;
+  color?: string;
+  classroom: { id: number; name: string };
+  danceCategory?: DanceCategory;
+  advancementLevel?: AdvancementLevel;
+  description?: string;
+  price?: string;
+}

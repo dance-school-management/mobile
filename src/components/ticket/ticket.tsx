@@ -2,22 +2,7 @@ import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { Pressable } from '@/components/ui/pressable';
-
-interface TicketProp {
-  classId: number;
-  qrCodeUUID: string;
-  name: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  classRoomName: string;
-  danceCategoryName: string;
-  advancementLevelName: string;
-  price: number;
-  paymentStatus: string;
-  attendaceStatus: string;
-  attendaceLastUpdated: Date;
-}
+import { TicketProp } from '@/util/types/ticket';
 
 export default function Ticket({ ticket, onPress } : { ticket: TicketProp, onPress: (ticket: TicketProp) => void }) {
     const date = new Date(ticket.startDate).toLocaleDateString();
@@ -26,7 +11,7 @@ export default function Ticket({ ticket, onPress } : { ticket: TicketProp, onPre
 
     return (
         <Pressable onPress={() => onPress(ticket)}>
-            <Card size="lg" variant="elevated" className='m-2 border-2 border-solid border-slate-800'>
+            <Card size="md" variant="elevated" className='my-1 mx-2 shadow-md bg-white dark:bg-gray-800 rounded-lg'>
                 <Heading size="md" className="mb-1">{ticket.name}</Heading>
                 <Text size="sm" className="mb-2">{ticket.danceCategoryName} - {ticket.advancementLevelName}</Text>
                 <Text size="sm" className="mb-2">{date}, {startHour} - {endHour}, {ticket.classRoomName}</Text>

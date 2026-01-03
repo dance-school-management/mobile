@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FlatList } from 'react-native';
+import { FlatList, TextInput, View } from 'react-native';
+import { Button, ButtonText } from '@/components/ui';
 import { Pressable } from '@/components/ui/pressable';
 import api from '@/server/axios';
 import { Alert, AlertText, Skeleton } from '@/components/ui';
@@ -14,27 +15,46 @@ export default function BlogsScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
-  const [limit, _] = useState<number>(10);
+  const [limit] = useState<number>(10);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [titleQuery, setTitleQuery] = useState<string>('');
+  const [tagQuery, setTagQuery] = useState<string>('');
+
+  const buildQueryString = (pageToLoad: number) => {
+    const params = new URLSearchParams({
+      page: pageToLoad.toString(),
+      limit: limit.toString(),
+    });
+
+    if (titleQuery.trim()) {
+      params.append('q', titleQuery.trim());
+    }
+
+    if (tagQuery.trim()) {
+      params.append('tag', tagQuery.trim());
+    }
+
+    return params.toString();
+  };
 
   const loadBlogs = async (pageToLoad: number, reset: boolean = false) => {
     if (loading) return;
     setLoading(true);
 
     try {
-      const response = await api.get(`${API_PATHS.getBlogs}?page=${pageToLoad}&limit=${limit}`);
+      const response = await api.get(`${API_PATHS.getBlogs}?${buildQueryString(pageToLoad)}`);
       const newBlogs: BlogLight[] = response.data.data;
 
       if (newBlogs.length === 0) {
         setHasMore(false);
         if (reset) setBlogs([]);
       } else {
-        setBlogs((prev) => reset ? newBlogs : [...prev, ...newBlogs]);
+        setBlogs((prev) => (reset ? newBlogs : [...prev, ...newBlogs]));
         setPage(pageToLoad + 1);
         setHasMore(true);
       }
     } catch (error) {
-      console.error("Error fetching blogs:", error);
+      console.error('Error fetching blogs:', error);
     } finally {
       setLoading(false);
     }
@@ -55,32 +75,55 @@ export default function BlogsScreen() {
     setHasMore(true);
     await loadBlogs(1, true);
     setRefreshing(false);
-  }, [refreshing, loading]);
+  }, [refreshing, loading, titleQuery, tagQuery]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
       <FlatList
         className="flex-1 mt-2 px-4"
         data={blogs}
-        renderItem={({ item }) => {
-          return (
-            <Pressable onPress={() => {router.push(`/(drawer)/(tabs)/blog/${item.id}`)}}>
-              <BlogCard blog={item} />
-            </Pressable>
-          )
-        }}
+        renderItem={({ item }) => (
+          <Pressable onPress={() => router.push(`/blog/${item.id}`)}>
+            <BlogCard blog={item} />
+          </Pressable>
+        )}
         keyExtractor={(item) => item.id.toString()}
         onEndReached={fetchBlogs}
         onEndReachedThreshold={0.5}
         onRefresh={onRefresh}
         refreshing={refreshing}
+        ListHeaderComponent={
+          <View className="mb-4">
+            <TextInput
+              value={titleQuery}
+              onChangeText={setTitleQuery}
+              placeholder="Filter by title"
+              autoCapitalize="none"
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
+            />
+            <TextInput
+              value={tagQuery}
+              onChangeText={setTagQuery}
+              placeholder="Filter by tag"
+              autoCapitalize="none"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1"
+            />
+            <Button
+              disabled={loading}
+              onPress={() => loadBlogs(1, true)}
+              className="mt-1 rounded-md"
+            >
+              <ButtonText>
+                Apply Filters
+              </ButtonText>
+            </Button>
+          </View>
+        }
         ListEmptyComponent={() => {
           if (loading) return null;
           return (
-            <Alert className="w-full max-w-md mt-4" action="info" variant='solid'>
-              <AlertText className="text-center">
-                No blogs available.
-              </AlertText>
+            <Alert className="w-full max-w-md mt-4" action="info" variant="solid">
+              <AlertText className="text-center">No blogs available.</AlertText>
             </Alert>
           );
         }}
@@ -91,9 +134,9 @@ export default function BlogsScreen() {
               <Skeleton className="h-40 w-full mb-4 rounded-lg" />
               <Skeleton className="h-40 w-full mb-4 rounded-lg" />
             </>
-          )
+          );
         }}
       />
     </SafeAreaView>
-  )
+  );
 }

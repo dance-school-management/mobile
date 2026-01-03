@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { HomeIcon, TicketsIcon, CalendarIcon, ScanQrCodeIcon } from 'lucide-react-native';
+import { HomeIcon, TicketsIcon, CalendarIcon, ScanQrCodeIcon, MegaphoneIcon } from 'lucide-react-native';
 import { DrawerToggleButton } from '@react-navigation/drawer';
 import BellButton from '@/components/notification/bellButton';
 import { useSessionQuery } from '@/lib/auth/session';
@@ -27,6 +27,7 @@ export default function _layout() {
       { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
       { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
       { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
+      { name: 'broadcasts', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon, hide: true },
     ],
     INSTRUCTOR: [
       { name: 'home', label: 'Home', title: 'Home', icon: HomeIcon },
@@ -43,6 +44,7 @@ export default function _layout() {
       { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
       { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
       { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
+      { name: 'broadcasts', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
     ],
     COORDINATOR: [
       { name: 'home', label: 'Home', title: 'Home', icon: HomeIcon },
@@ -59,6 +61,7 @@ export default function _layout() {
       { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
       { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
       { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
+      { name: 'broadcasts', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
     ],
   };
 

@@ -10,72 +10,9 @@ import Filter from '@/components/schedule/filter';
 import DatePickerPopUp from '@/components/schedule/datePickerPopUp';
 import EventDetails from '@/components/schedule/eventDetails';
 import SearchedEvents from '@/components/schedule/searchedEvents';
+import { CalendarEvent, ScheduleItemPersonal, ScheduleItem } from '@/util/types/schedule';
+import { API_PATHS } from '@/util/endpoints';
 
-interface EventProp {
-  id: number;
-  instructors: {
-    id: number;
-    name: string;
-    surname: string;
-  }
-  owned: boolean;
-  paymentStatus: string | null;
-  classTemplateId: number;
-  groupNumber: number;
-  startDate: Date;
-  endDate: Date;
-  peopleLimit: number;
-  classRoomId: number;
-  classStatus: string;
-  classTemplate: {
-    id: number;
-    courseId: number;
-    name: string;
-    description: string;
-    price: string;
-    currency: string;
-    danceCategoryId: number;
-    advancementLevelId: number;
-    classType: string;
-    scheduleTileColor: string;
-    danceCategory: {
-      id: number;
-      name: string;
-      description: string;
-      photoPath: string;
-    }
-    advancementLevel: {
-      id: number;
-      name: string;
-      description: string;
-    }
-    course: {
-      id: number;
-      name: string;
-      description: string;
-      danceCategoryId: number;
-      advancementLevelId: number;
-      courseStatus: string;
-      customPrice: string;
-    }
-  }
-}
-
-interface CalendarEvent {
-  id: number | string;
-  start: Date;
-  end: Date;
-  title: string;
-  color?: string;
-  bgColor?: string;
-  name: string;
-  classroom: string;
-  danceCategory?: { id: number; name: string; description?: string; photoPath?: string };
-  advancementLevel?: { id: number; name: string; description?: string };
-  description?: string;
-  price?: string;
-  currency?: string;
-};
 
 export default function ScheduleScreen() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -116,8 +53,9 @@ export default function ScheduleScreen() {
 
   const fetchEvents = async () => {
     try {
-      const response = await api.get(`/product/schedule?dateFrom=${minDate.toISOString()}&dateTo=${maxDate.toISOString()}`);
+      const response = await api.get(`${API_PATHS.getSchedule}?dateFrom=${minDate.toISOString()}&dateTo=${maxDate.toISOString()}`);
       const data = response.data;
+      console.log('Fetched events:', data);
       const formattedEvents = data.map((event: any) => {
         console.log(event.id);
         return formatEvent(event);
@@ -133,7 +71,7 @@ export default function ScheduleScreen() {
   }, [minDate, maxDate]);
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right']}>
       <ScheduleHeader
         setCurrentDate={setCurrentDate}
         setMinDate={setMinDate}
@@ -153,32 +91,10 @@ export default function ScheduleScreen() {
         <CalendarHeader />
         <CalendarBody renderEvent={renderEvent} />
       </CalendarContainer>
-      {/*<Button*/}
-      {/*  variant="solid"*/}
-      {/*  action="secondary"*/}
-      {/*  className="m-2"*/}
-      {/*  size="md"*/}
-      {/*  onPress={() => console.log(events)}*/}
-      {/*>*/}
-      {/*  <ButtonText>Upcoming Routine Events</ButtonText>*/}
-      {/*</Button>*/}
-      <Input className="m-1" size="xl" variant="rounded">
-        <InputSlot className="pl-2">
-          <InputIcon as={SearchIcon} />
-        </InputSlot>
-        <InputField
-          type="text"
-          placeholder="Search events..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={() => setSearchVisible(true)}
-        />
-      </Input>
-
-      <Filter
-        visible={activeModal === 'filter'}
-        onClose={() => setActiveModal(null)}
-      />
+      {/*<Filter*/}
+      {/*  visible={activeModal === 'filter'}*/}
+      {/*  onClose={() => setActiveModal(null)}*/}
+      {/*/>*/}
       <DatePickerPopUp
         visible={activeModal === 'calendar'}
         onClose={() => setActiveModal(null)}
@@ -191,14 +107,14 @@ export default function ScheduleScreen() {
         visible={activeModal === 'event'}
         onClose={() => setActiveModal(null)}
       />
-      <SearchedEvents
-        events={events}
-        search={searchQuery}
-        visible={searchVisible}
-        onClose={() => setSearchVisible(false)}
-        setPressedEvent={setPressedEvent}
-        setActiveModal={setActiveModal}
-      />
+      {/*<SearchedEvents*/}
+      {/*  events={events}*/}
+      {/*  search={searchQuery}*/}
+      {/*  visible={searchVisible}*/}
+      {/*  onClose={() => setSearchVisible(false)}*/}
+      {/*  setPressedEvent={setPressedEvent}*/}
+      {/*  setActiveModal={setActiveModal}*/}
+      {/*/>*/}
     </SafeAreaView>
   );
 }

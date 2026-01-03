@@ -88,18 +88,20 @@ export default function ProfileScreen() {
               className="w-32 h-32 rounded-full"
             />
           </Box>
-          <Text className="text-lg text-gray-600 dark:text-gray-400 m-2">Name: {user?.name}</Text>
-          <Text className="text-lg text-gray-600 dark:text-gray-400 m-2">Surname: {user?.name}</Text>
-          <Text className="text-lg text-gray-600 dark:text-gray-400 m-2">Email: {user?.email}</Text>
-          <Text className="text-lg text-gray-600 dark:text-gray-400 m-2">Phone: {user?.phone}</Text>
-          <Text className="text-lg text-gray-600 dark:text-gray-400 m-2">Role: {user?.role}</Text>
-          <Text className="text-lg text-gray-600 dark:text-gray-400 m-2">Favourite dance categories: </Text>
+          <Text className="text-lg text-gray-600 dark:text-gray-400 m-1">Name: {user?.name}</Text>
+          <Text className="text-lg text-gray-600 dark:text-gray-400 m-1">Surname: {user?.name}</Text>
+          <Text className="text-lg text-gray-600 dark:text-gray-400 m-1">Email: {user?.email}</Text>
+          <Text className="text-lg text-gray-600 dark:text-gray-400 m-1">Phone: {user?.phone}</Text>
+          <Text className="text-lg text-gray-600 dark:text-gray-400 m-1">Role: {user?.role}</Text>
+          <Text className="text-lg text-gray-600 dark:text-gray-400 m-1">Favourite dance categories: </Text>
+          <Box className="flex-row flex-wrap gap-2">
           {danceCategories.filter(dc => user?.favouriteDanceCategories.includes(dc.id)).map(dc => (
-            <Badge variant="outline" action="info" key={dc.id} className="m-2">
+            <Badge variant="outline" action="info" key={dc.id} className="rounded-lg">
               <BadgeText>{dc.name}</BadgeText>
             </Badge>
           ))}
-          <Box className="flex-row justify-end mt-6">
+          </Box>
+          <Box className="flex-row justify-end mt-1">
             <Button size="lg" className="rounded-full p-3.5">
               <ButtonIcon as={EditIcon} />
             </Button>

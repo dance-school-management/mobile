@@ -17,6 +17,7 @@ export default function PersonalWelcome({ refreshKey }: { refreshKey?: number })
   const [todayClasses, setTodayClasses] = useState<ScheduleItemPersonal[]>([]);
 
   const fetchTodayClasses = async () => {
+    if (role !== 'STUDENT' && role !== 'INSTRUCTOR') return;
     try {
       setLoading(true);
       const response = await api.get(getApiUrl(API_PATHS.getSchedulePersonal, { dateFrom: new Date().toISOString(), dateTo: '2026-02-10T23:59:59.000Z' }));

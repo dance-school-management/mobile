@@ -6,6 +6,7 @@ import { Divider, Spinner, Switch, Text, VStack } from '@/components/ui';
 import { RefreshControl, ScrollView } from 'react-native';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
+import Constants from 'expo-constants';
 
 export default function SettingsScreen() {
   const [enabledNotifications, setEnabledNotifications] = useState(false);
@@ -20,7 +21,7 @@ export default function SettingsScreen() {
       setEnabledNotifications(data.hasEnabledNotifications);
       setEnabledPushNotifications(data.isRegisteredForPushNotifications);
     } catch (error) {
-      console.error('Error fetching notification settings:', error);
+      console.error('Error fetching notification.ts settings:', error);
     } finally {
       setLoading(false);
     }
@@ -35,7 +36,7 @@ export default function SettingsScreen() {
         updatePushNotifications();
       }
     } catch (error) {
-      console.error('Error updating notification settings:', error);
+      console.error('Error updating notification.ts settings:', error);
     }
   }
 
@@ -54,11 +55,11 @@ export default function SettingsScreen() {
         finalStatus = status;
       }
       if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
+        alert('Failed to get push token for push notification.ts!');
         return;
       }
       const token = (await Notifications.getExpoPushTokenAsync({
-        projectId: "eafcc134-43ac-4627-839a-9c8410352708",
+        projectId: Constants.expoConfig?.extra.EAS_PROJECT_ID,
       })).data;
       console.log(token);
       try {
