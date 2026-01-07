@@ -9,17 +9,32 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { API_PATHS } from '@/util/endpoints';
 import { RefreshControl, ScrollView } from 'react-native';
 import { Badge } from '@/components/ui/badge';
-import { PinIcon } from 'lucide-react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { PinIcon, SquarePenIcon, Trash2Icon } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { formattedDate } from '@/util/dates';
 import { Divider } from '@/components/ui/divider';
+import { useSessionQuery } from '@/lib/auth/session';
+import {
+  Fab,
+  FabIcon,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogBody,
+  AlertDialogBackdrop,
+  Button } from '@/components/ui';
 
 export default function BlogScreen() {
   const { blogId }  = useLocalSearchParams();
   const [blog, setBlog] = useState<Blog>();
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const { data: sessionData } = useSessionQuery();
+  // @ts-ignore
+  const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
 
   const fetchBlog = async () => {
     try {
@@ -30,6 +45,44 @@ export default function BlogScreen() {
       console.error('Error fetching blog:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  const handleDelete = async () => {
+    try {
+      await api.delete(`${API_PATHS.postBlog}/${blogId}`);
+      router.push('/blogs');
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+    } finally {
+      setShowDeleteDialog(false);
+    }
+  }
+
+  const togglePin = async () => {
+    try {
+      if (blog?.isPinned) {
+        await api.patch(`blog/posts/${blogId}/unpin`);
+      } else {
+        const now = new Date();
+        const pinnedUntil = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          now.getDate(),
+          now.getHours(),
+          now.getMinutes(),
+          now.getSeconds(),
+          now.getMilliseconds(),
+        ).toISOString();
+
+        await api.patch(`blog/posts/${blogId}/pin`, {
+          pinnedUntil,
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling pin status:', error);
+    } finally {
+      fetchBlog();
     }
   }
 
@@ -66,10 +119,35 @@ export default function BlogScreen() {
             <Heading size="lg" className="flex-1 text-black dark:text-white">
               {blog?.title}
             </Heading>
-            {blog && blog.isPinned && (
-              <Badge action="info" className="ml-2 flex-row items-center">
-                <PinIcon size={16} className="mr-1" />
-              </Badge>
+            {role === 'COORDINATOR' ? (
+              <Box className="flex-row items-center ml-2">
+                {blog && blog.isPinned && (
+                  <Badge
+                    action="info"
+                    className="mr-2 flex-row items-center"
+                  >
+                    <PinIcon size={16} className="mr-1" />
+                  </Badge>
+                )}
+                <Button
+                  size="md"
+                  variant="outline"
+                  onPress={togglePin}
+                  className="px-2"
+                >
+                  <Text className="text-md">
+                    {blog?.isPinned ? 'Unpin' : 'Pin'}
+                  </Text>
+                </Button>
+              </Box>
+            ) : (
+              <>
+              {blog && blog.isPinned && (
+                <Badge action="info" className="ml-2 flex-row items-center">
+                  <PinIcon size={16} className="mr-1" />
+                </Badge>
+              )}
+              </>
             )}
           </Box>
           {blog?.tags && blog.tags.length > 0 && (
@@ -100,6 +178,46 @@ export default function BlogScreen() {
           </Markdown>
         </Box>
       </ScrollView>
+      <AlertDialog isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+        <AlertDialogBackdrop className="flex-1 items-center justify-center" />
+        <AlertDialogContent className="opacity-100">
+          <AlertDialogHeader>
+            <Text className="text-black dark:text-white text-lg font-bold">Delete Blog</Text>
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            <Text className="text-black dark:text-white">Are you sure you want to delete this blog? This action cannot be undone.</Text>
+          </AlertDialogBody>
+          <AlertDialogFooter className="mt-2">
+            <Button variant="outline" onPress={() => setShowDeleteDialog(false)} className="mr-2">
+              <Text className="text-black dark:text-white">Cancel</Text>
+            </Button>
+            <Button variant="solid" action="negative" onPress={handleDelete}>
+              <Text className="text-white">Delete</Text>
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {role === 'COORDINATOR' && (
+        <>
+          <Fab
+            onPress={() => router.push(`/blogEditor?blogId=${blogId}`)}
+            size="md"
+            placement="bottom right"
+            className="mb-16 bg-info-600 hover:bg-info-700 active:bg-info-800"
+          >
+            <FabIcon as={SquarePenIcon} width={25} height={25} />
+          </Fab>
+
+          <Fab
+            onPress={() => setShowDeleteDialog(true)}
+            size="md"
+            placement="bottom right"
+            className="bg-error-600 hover:bg-error-700 active:bg-error-800"
+          >
+            <FabIcon as={Trash2Icon} width={25} height={25} />
+          </Fab>
+        </>
+      )}
     </SafeAreaView>
   );
 }

@@ -7,9 +7,10 @@ import api from '@/server/axios';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScheduleItemPersonal } from '@/util/types/schedule';
 import UpcomingClasses from '@/components/schedule/UpcomingClasses';
+import { getDateStart, getDateEnd } from '@/util/dates';
 
 export default function PersonalWelcome({ refreshKey }: { refreshKey?: number }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { data: sessionData } = useSessionQuery();
   // @ts-ignore
   const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
@@ -20,7 +21,7 @@ export default function PersonalWelcome({ refreshKey }: { refreshKey?: number })
     if (role !== 'STUDENT' && role !== 'INSTRUCTOR') return;
     try {
       setLoading(true);
-      const response = await api.get(getApiUrl(API_PATHS.getSchedulePersonal, { dateFrom: new Date().toISOString(), dateTo: '2026-02-10T23:59:59.000Z' }));
+      const response = await api.get(getApiUrl(API_PATHS.getSchedulePersonal, { dateFrom: getDateStart(new Date()).toISOString(), dateTo: getDateEnd(new Date()).toISOString() }));
       const data = response.data;
       setTodayClasses(data)
     } catch (error) {

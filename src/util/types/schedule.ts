@@ -48,4 +48,5 @@ export interface CalendarEvent {
   advancementLevel?: AdvancementLevel;
   description?: string;
   price?: string;
+  scheduleItem: ScheduleItem;
 }

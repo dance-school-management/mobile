@@ -27,7 +27,9 @@ export default function _layout() {
       { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
       { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
       { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
-      { name: 'broadcasts', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon, hide: true },
+      { name: 'broadcast/history', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon, hide: true },
+      { name: 'broadcast/send', label: 'Send Notification', title: 'Send Notification', icon: MegaphoneIcon, hide: true },
+      { name: 'blogEditor', label: 'Blog Editor', title: 'Blog Editor', icon: HomeIcon, hide: true },
     ],
     INSTRUCTOR: [
       { name: 'home', label: 'Home', title: 'Home', icon: HomeIcon },
@@ -44,7 +46,9 @@ export default function _layout() {
       { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
       { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
       { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
-      { name: 'broadcasts', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
+      { name: 'broadcast/history', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
+      { name: 'broadcast/send', label: 'Send Notification', title: 'Send Notification', icon: MegaphoneIcon, hide: true },
+      { name: 'blogEditor', label: 'Blog Editor', title: 'Blog Editor', icon: HomeIcon, hide: true },
     ],
     COORDINATOR: [
       { name: 'home', label: 'Home', title: 'Home', icon: HomeIcon },
@@ -61,7 +65,9 @@ export default function _layout() {
       { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
       { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
       { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
-      { name: 'broadcasts', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
+      { name: 'broadcast/history', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
+      { name: 'broadcast/send', label: 'Send Notification', title: 'Send Notification', icon: MegaphoneIcon, hide: true },
+      { name: 'blogEditor', label: 'Blog Editor', title: 'Blog Editor', icon: HomeIcon, hide: true },
     ],
   };
 

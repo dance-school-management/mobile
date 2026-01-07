@@ -59,7 +59,7 @@ export default function SettingsScreen() {
         return;
       }
       const token = (await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig?.extra.EAS_PROJECT_ID,
+        projectId: Constants.expoConfig?.extra?.EAS_PROJECT_ID,
       })).data;
       console.log(token);
       try {

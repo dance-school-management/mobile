@@ -10,11 +10,13 @@ import {
   SettingsIcon,
   NewspaperIcon,
   LogOutIcon,
-  BookUpIcon
+  BookUpIcon,
+  ScanQrCodeIcon,
+  MegaphoneIcon
 } from 'lucide-react-native';
 import { router, usePathname } from 'expo-router';
 import { User } from 'lucide-react-native';
-import { Button, ButtonText, Pressable, Text, View } from '@/components/ui';
+import { Pressable, Text, View } from '@/components/ui';
 import { useSessionQuery } from '@/lib/auth/session';
 import { useLogoutMutation } from '@/lib/auth/logout';
 import { Role } from '@/util/types/roles';
@@ -111,6 +113,12 @@ const CustomDrawerContent = (props : any) => {
         pathMatch: '/schedule',
       },
       {
+        label: 'Courses',
+        route: '/(tabs)/courses',
+        icon: BookUpIcon,
+        pathMatch: '/courses',
+      },
+      {
         label: 'Blog',
         route: '/(tabs)/blogs',
         icon: NewspaperIcon,
@@ -141,6 +149,42 @@ const CustomDrawerContent = (props : any) => {
         route: '/(tabs)/schedule',
         icon: CalendarIcon,
         pathMatch: '/schedule',
+      },
+      {
+        label: 'Courses',
+        route: '/(tabs)/courses',
+        icon: BookUpIcon,
+        pathMatch: '/courses',
+      },
+      {
+        label: 'Blog',
+        route: '/(tabs)/blogs',
+        icon: NewspaperIcon,
+        pathMatch: '/blogs',
+      },
+      {
+        label: 'Instructors',
+        route: '/(tabs)/instructors',
+        icon: User,
+        pathMatch: '/instructors',
+      },
+      {
+        label: 'QR Scanner',
+        route: '/(tabs)/qr',
+        icon: ScanQrCodeIcon,
+        pathMatch: '/qr',
+      },
+      {
+        label: 'Broadcasts',
+        route: '/(tabs)/broadcast/history',
+        icon: MegaphoneIcon,
+        pathMatch: '/broadcast/history',
+      },
+      {
+        label: 'Settings',
+        route: '/(tabs)/settings',
+        icon: SettingsIcon,
+        pathMatch: '/settings',
       },
     ],
   };

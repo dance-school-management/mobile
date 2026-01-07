@@ -19,6 +19,7 @@ const register = async (formData: RegisterFormData) => {
       // @ts-ignore
       first_name: formData.name,
       surname: formData.surname,
+      role: 'STUDENT',
     },
     {
       onError: (ctx) => {

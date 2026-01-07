@@ -16,3 +16,15 @@ export function getDateYearsAfter(date: Date, years: number) {
     newDate.setFullYear(newDate.getFullYear() + years);
     return newDate;
 }
+
+export function getDateStart(date: Date) {
+    const newDate = new Date(date);
+    newDate.setHours(0, 0, 0, 0);
+    return newDate;
+}
+
+export function getDateEnd(date: Date) {
+    const newDate = new Date(date);
+    newDate.setHours(23, 59, 59, 999);
+    return newDate;
+}

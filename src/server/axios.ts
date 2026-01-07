@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { authClient } from './auth-client';
 import Constants from 'expo-constants';
 
-const IP = Constants.expoConfig?.extra.IP;
+const IP = Constants.expoConfig?.extra?.IP;
 
 const defaultBase = Platform.select({
   android: `http://${IP}:8000`,

@@ -8,7 +8,7 @@ import { CalendarBody, CalendarContainer, CalendarHeader } from '@howljs/calenda
 import { Input, InputField, InputIcon, InputSlot, SearchIcon } from '@/components/ui';
 import Filter from '@/components/schedule/filter';
 import DatePickerPopUp from '@/components/schedule/datePickerPopUp';
-import EventDetails from '@/components/schedule/eventDetails';
+import EventDetails from '@/components/schedule/EventDetails';
 import SearchedEvents from '@/components/schedule/searchedEvents';
 import { CalendarEvent, ScheduleItemPersonal, ScheduleItem } from '@/util/types/schedule';
 import { API_PATHS } from '@/util/endpoints';
@@ -23,9 +23,8 @@ export default function ScheduleScreen() {
   >(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
-  const [pressedEvent, setPressedEvent] = useState<CalendarEvent>(null);
+  const [pressedEvent, setPressedEvent] = useState<CalendarEvent | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [personalEvents, setPersonalEvents] = useState<CalendarEvent[]>([]);
 
   const renderEvent = useCallback((event) => {
     return (
@@ -40,24 +39,11 @@ export default function ScheduleScreen() {
     );
   }, []);
 
-  const fetchPersonalEvents = async () => {
-    try {
-      const response = await api.get(`/product/schedule/personal?dateFrom=${minDate.toISOString()}&dateTo=${maxDate.toISOString()}`);
-      const data = response.data;
-      console.log(data);
-      setPersonalEvents(data);
-    } catch (error) {
-      console.error('Error fetching personal events:', error);
-    }
-  }
-
   const fetchEvents = async () => {
     try {
       const response = await api.get(`${API_PATHS.getSchedule}?dateFrom=${minDate.toISOString()}&dateTo=${maxDate.toISOString()}`);
       const data = response.data;
-      console.log('Fetched events:', data);
       const formattedEvents = data.map((event: any) => {
-        console.log(event.id);
         return formatEvent(event);
       });
       setEvents(formattedEvents);

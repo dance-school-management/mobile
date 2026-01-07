@@ -28,6 +28,9 @@ export const API_PATHS = {
     postRegisterPushNotifications: '/notification/notification/register',
     postToggleNotifications: '/notification/notification/toggle',
     putUnregisterPushNotifications: '/notification/push/unregister',
+    postCreateNotification: '/notification/notification/management',
+    getNotificationLogs: '/notification/notification/management',
+    getStudents: '/profile/search',
 }
 
 export const getApiUrl = (

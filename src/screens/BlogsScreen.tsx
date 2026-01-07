@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FlatList, TextInput, View } from 'react-native';
-import { Button, ButtonText } from '@/components/ui';
+import { FlatList, TextInput } from 'react-native';
+import { Button, ButtonText, Fab, FabIcon, Box } from '@/components/ui';
+import { BadgePlusIcon } from 'lucide-react-native';
 import { Pressable } from '@/components/ui/pressable';
 import api from '@/server/axios';
 import { Alert, AlertText, Skeleton } from '@/components/ui';
 import { API_PATHS } from '@/util/endpoints';
 import { BlogLight } from '@/util/types/blog';
 import BlogCard from '@/components/blog/BlogCard';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useSessionQuery } from '@/lib/auth/session';
 
 export default function BlogsScreen() {
   const [blogs, setBlogs] = useState<BlogLight[]>([]);
@@ -19,6 +21,9 @@ export default function BlogsScreen() {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [titleQuery, setTitleQuery] = useState<string>('');
   const [tagQuery, setTagQuery] = useState<string>('');
+  const { data: sessionData } = useSessionQuery();
+  // @ts-ignore
+  const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
 
   const buildQueryString = (pageToLoad: number) => {
     const params = new URLSearchParams({
@@ -69,6 +74,12 @@ export default function BlogsScreen() {
     loadBlogs(1, true);
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      loadBlogs(1, true);
+    }, []),
+  );
+
   const onRefresh = React.useCallback(async () => {
     if (refreshing || loading) return;
     setRefreshing(true);
@@ -93,7 +104,7 @@ export default function BlogsScreen() {
         onRefresh={onRefresh}
         refreshing={refreshing}
         ListHeaderComponent={
-          <View className="mb-4">
+          <Box className="p-1 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
             <TextInput
               value={titleQuery}
               onChangeText={setTitleQuery}
@@ -117,7 +128,7 @@ export default function BlogsScreen() {
                 Apply Filters
               </ButtonText>
             </Button>
-          </View>
+          </Box>
         }
         ListEmptyComponent={() => {
           if (loading) return null;
@@ -137,6 +148,16 @@ export default function BlogsScreen() {
           );
         }}
       />
+      {role === 'COORDINATOR' && (
+        <Fab
+          onPress={() => router.push('/blogEditor')}
+          size="md"
+          placement="bottom right"
+          className="bg-success-600 hover:bg-success-700 active:bg-success-800"
+        >
+          <FabIcon as={BadgePlusIcon} width={25} height={25} />
+        </Fab>
+      )}
     </SafeAreaView>
   );
 }

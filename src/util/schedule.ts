@@ -37,6 +37,7 @@ const formatEvent = (event : ScheduleItem) : CalendarEvent => {
     price: event.classTemplate.price,
     danceCategory: event.classTemplate.danceCategory,
     advancementLevel: event.classTemplate.advancementLevel,
+    scheduleItem: event,
   }
 }
 
