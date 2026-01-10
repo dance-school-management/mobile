@@ -1,3 +1,5 @@
+import { ScheduleItem, CalendarEvent } from "@/util/types/schedule";
+
 const getMondaySunday = (date: Date) => {
     const day = date.getDay();
     const diffToMonday = (day === 0 ? -6 : 1) - day;
@@ -24,31 +26,18 @@ const getDayEnd = (date: Date) => {
     return endOfDay;
 }
 
-const formatEvent = (event) => {
+const formatEvent = (event : ScheduleItem) : CalendarEvent => {
   return {
     id: event.id,
-    name: event.classTemplate.name,
+    title: event.classTemplate.name,
     description: event.classTemplate.description,
     start: { dateTime: event.startDate },
     end: { dateTime: event.endDate },
-    classroom: event.classRoomId,
-    classStatus: event.classStatus,
-    bgColor: event.classTemplate.scheduleTileColor,
+    classroom: event.classRoom,
     price: event.classTemplate.price,
-    currency: event.classTemplate.currency,
-    classType: event.classTemplate.classType,
-    danceCategory: event.classTemplate.danceCategory ? {
-      id: event.classTemplate.danceCategory.id,
-      name: event.classTemplate.danceCategory.name,
-    } : null,
-    advancementLevel: event.classTemplate.advancementLevel ? {
-      id: event.classTemplate.advancementLevel.id,
-      name: event.classTemplate.advancementLevel.name,
-    } : null,
-    course: event.classTemplate.course ? {
-      id: event.classTemplate.course.id,
-      name: event.classTemplate.course.name,
-    } : null,
+    danceCategory: event.classTemplate.danceCategory,
+    advancementLevel: event.classTemplate.advancementLevel,
+    scheduleItem: event,
   }
 }
 

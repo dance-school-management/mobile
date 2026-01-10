@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from './auth-client';
+import { authClient, setHasSessionMarker } from '@/server/auth-client';
 import { queryClient } from '@/app/_layout';
 import { useRouter } from 'expo-router';
+import { useAppToast } from '@/hooks/useAppToast';
 
 type LoginFormData = {
   email: string;
@@ -24,15 +25,21 @@ const login = async (formData: LoginFormData) => {
 
 export const useLoginMutation = () => {
   const router = useRouter();
+  const showToast = useAppToast();
   return useMutation({
     mutationKey: ['login'],
     mutationFn: login,
     onError(error, variables, context) {
-      alert(error.message || 'Login failed');
+      const msg = (error as any)?.message ?? 'Login failed';
+      showToast({
+        title: 'Login Error',
+        description: msg,
+        type: 'error',
+      });
     },
     onSuccess: async () => {
+      await setHasSessionMarker(true);
       await queryClient.invalidateQueries({ queryKey: ['session'] });
-      router.push('/(drawer)/(tabs)/feed');
     },
   });
 };

@@ -1,36 +1,90 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { HomeIcon, TicketsIcon, CalendarIcon, BellIcon } from 'lucide-react-native';
+import { HomeIcon, TicketsIcon, CalendarIcon, ScanQrCodeIcon, MegaphoneIcon } from 'lucide-react-native';
 import { DrawerToggleButton } from '@react-navigation/drawer';
 import BellButton from '@/components/notification/bellButton';
+import { useSessionQuery } from '@/lib/auth/session';
+import { Role } from '@/util/types/roles';
 
 export default function _layout() {
+  const { data: sessionData } = useSessionQuery();
+  // @ts-ignore
+  const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
+
+  const tabsByRole: Record<Role, Array<{ name: string, label: string, title: string, icon: React.ElementType, hide?: boolean }>> = {
+    STUDENT: [
+      { name: 'home', label: 'Home', title: 'Home', icon: HomeIcon },
+      { name: 'tickets', label: 'Tickets', title: 'Tickets', icon: TicketsIcon },
+      { name: 'schedule', label: 'Schedule', title: 'Schedule', icon: CalendarIcon },
+      { name: 'qr', label: 'QR Scanner', title: 'QR Scanner', icon: ScanQrCodeIcon, hide: true },
+      { name: 'blogs', label: 'Blog', title: 'Blog', icon: HomeIcon, hide: true },
+      { name: 'blog/[blogId]', label: 'Blog', title: 'Blog', icon: HomeIcon, hide: true },
+      { name: 'instructors', label: 'Instructors', title: 'Instructors', icon: HomeIcon, hide: true },
+      { name: 'instructor/[instructorId]', label: 'Instructor', title: 'Instructor', icon: HomeIcon, hide: true },
+      { name: 'profile', label: 'Profile', title: 'Profile', icon: HomeIcon, hide: true },
+      { name: 'notifications', label: 'Notifications', title: 'Notifications', icon: HomeIcon, hide: true },
+      { name: 'settings', label: 'Settings', title: 'Settings', icon: HomeIcon, hide: true },
+      { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
+      { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
+      { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
+      { name: 'broadcast/history', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon, hide: true },
+      { name: 'broadcast/send', label: 'Send Notification', title: 'Send Notification', icon: MegaphoneIcon, hide: true },
+      { name: 'blogEditor', label: 'Blog Editor', title: 'Blog Editor', icon: HomeIcon, hide: true },
+    ],
+    INSTRUCTOR: [
+      { name: 'home', label: 'Home', title: 'Home', icon: HomeIcon },
+      { name: 'schedule', label: 'Schedule', title: 'Schedule', icon: CalendarIcon },
+      { name: 'tickets', label: 'Tickets', title: 'Tickets', icon: TicketsIcon, hide: true },
+      { name: 'qr', label: 'QR Scanner', title: 'QR Scanner', icon: ScanQrCodeIcon, hide: true },
+      { name: 'blogs', label: 'Blog', title: 'Blog', icon: HomeIcon, hide: true },
+      { name: 'blog/[blogId]', label: 'Blog', title: 'Blog', icon: HomeIcon, hide: true },
+      { name: 'instructors', label: 'Instructors', title: 'Instructors', icon: HomeIcon, hide: true },
+      { name: 'instructor/[instructorId]', label: 'Instructor', title: 'Instructor', icon: HomeIcon, hide: true },
+      { name: 'profile', label: 'Profile', title: 'Profile', icon: HomeIcon, hide: true },
+      { name: 'notifications', label: 'Notifications', title: 'Notifications', icon: HomeIcon, hide: true },
+      { name: 'settings', label: 'Settings', title: 'Settings', icon: HomeIcon, hide: true },
+      { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
+      { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
+      { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
+      { name: 'broadcast/history', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
+      { name: 'broadcast/send', label: 'Send Notification', title: 'Send Notification', icon: MegaphoneIcon, hide: true },
+      { name: 'blogEditor', label: 'Blog Editor', title: 'Blog Editor', icon: HomeIcon, hide: true },
+    ],
+    COORDINATOR: [
+      { name: 'home', label: 'Home', title: 'Home', icon: HomeIcon },
+      { name: 'schedule', label: 'Schedule', title: 'Schedule', icon: CalendarIcon },
+      { name: 'tickets', label: 'My Tickets', title: 'My Tickets', icon: TicketsIcon, hide: true },
+      { name: 'qr', label: 'QR Scanner', title: 'QR Scanner', icon: ScanQrCodeIcon },
+      { name: 'blogs', label: 'Blog', title: 'Blog', icon: HomeIcon, hide: true },
+      { name: 'blog/[blogId]', label: 'Blog', title: 'Blog', icon: HomeIcon, hide: true },
+      { name: 'instructors', label: 'Instructors', title: 'Instructors', icon: HomeIcon, hide: true },
+      { name: 'instructor/[instructorId]', label: 'Instructor', title: 'Instructor', icon: HomeIcon, hide: true },
+      { name: 'profile', label: 'Profile', title: 'Profile', icon: HomeIcon, hide: true },
+      { name: 'notifications', label: 'Notifications', title: 'Notifications', icon: HomeIcon, hide: true },
+      { name: 'settings', label: 'Settings', title: 'Settings', icon: HomeIcon, hide: true },
+      { name: 'progress', label: 'Progress', title: 'Progress', icon: HomeIcon, hide: true },
+      { name: 'course/[courseId]', label: 'Course', title: 'Course', icon: HomeIcon, hide: true },
+      { name: 'courses', label: 'Courses', title: 'Courses', icon: HomeIcon, hide: true },
+      { name: 'broadcast/history', label: 'Broadcasts', title: 'Broadcasts', icon: MegaphoneIcon },
+      { name: 'broadcast/send', label: 'Send Notification', title: 'Send Notification', icon: MegaphoneIcon, hide: true },
+      { name: 'blogEditor', label: 'Blog Editor', title: 'Blog Editor', icon: HomeIcon, hide: true },
+    ],
+  };
+
   return (
     <Tabs screenOptions={{ headerLeft: () => <DrawerToggleButton tintColor='#000' />, headerRight: () => <BellButton /> }}>
-      <Tabs.Screen name='feed' options={{
-        tabBarIcon: ({ color }) => (
-          <HomeIcon size={24} color={color} />
-        ),
-        tabBarLabel: 'Home',
-        headerTitle: 'Home',
-      }} />
-      <Tabs.Screen name='tickets' options={{
-        tabBarIcon: ({ color }) => (
-          <TicketsIcon size={24} color={color} />
-        ),
-        tabBarLabel: 'My Tickets',
-        headerTitle: 'My Tickets'
-      }} />
-      <Tabs.Screen name='schedule' options={{
-        tabBarIcon: ({ color }) => (
-          <CalendarIcon size={24} color={color} />
-        ),
-        tabBarLabel: 'Schedule',
-        headerTitle: 'Schedule'
-      }} />
-      <Tabs.Screen name="notifications" options={{
-        href: null,
-      }} />
+      {tabsByRole[role].map((tab) => (
+        <Tabs.Screen
+          key={tab.name}
+          name={tab.name}
+          options={{
+            href: tab.hide ? null : undefined,
+            tabBarLabel: tab.label,
+            title: tab.title,
+            tabBarIcon: ({ color, size }) => <tab.icon color={color} size={size} />,
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

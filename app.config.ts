@@ -31,6 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#2E3C4B',
     },
     package: Env.PACKAGE,
+    googleServicesFile: "./google-services.json",
   },
   web: {
     favicon: './assets/favicon.png',
@@ -52,6 +53,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-router',
+    "@react-native-community/datetimepicker",
+    "expo-localization",
+    "expo-secure-store",
+    "expo-web-browser",
+    "expo-brightness",
+    'expo-local-authentication'
   ],
   extra: {
     ...ClientEnv,

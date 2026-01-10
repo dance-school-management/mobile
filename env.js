@@ -17,8 +17,7 @@ const z = require('zod');
 
 const packageJSON = require('./package.json');
 const path = require('path');
-const APP_ENV = process.env.APP_ENV ?? 'development';
-const envPath = path.resolve(__dirname, `.env.${APP_ENV}`);
+const envPath = path.resolve(__dirname, `.env`);
 
 require('dotenv').config({
   path: envPath,
@@ -32,25 +31,10 @@ require('dotenv').config({
  * for example: if the APP_ENV is staging, the bundle id will be com.myexpo-ownerapp.staging
  */
 
-// TODO: Replace these values with your own
-
 const BUNDLE_ID = 'com.myexpo'; // ios bundle id
 const PACKAGE = 'com.myexpo'; // android package name
 const NAME = 'Myexpo'; // app name
-const EXPO_ACCOUNT_OWNER = 'mwala'; // expo account owner
-const EAS_PROJECT_ID = ''; // eas project id
 const SCHEME = 'Myexpo'; // app scheme
-
-/**
- * We declare a function withEnvSuffix that will add a suffix to the variable name based on the APP_ENV
- * Add a suffix to variable env based on APP_ENV
- * @param {string} name
- * @returns  {string}
- */
-
-const withEnvSuffix = (name) => {
-  return APP_ENV === 'production' ? name : `${name}.${APP_ENV}`;
-};
 
 /**
  * 2nd part: Define your env variables schema
@@ -79,9 +63,12 @@ const client = z.object({
   VERSION: z.string(),
 
   // ADD YOUR CLIENT ENV VARS HERE
-  API_URL: z.string(),
+  AUTH_URL: z.string(),
   VAR_NUMBER: z.number(),
   VAR_BOOL: z.boolean(),
+  IP: z.string(),
+  EXPO_ACCOUNT_OWNER: z.string(),
+  EAS_PROJECT_ID: z.string(),
 });
 
 const buildTime = z.object({
@@ -95,25 +82,28 @@ const buildTime = z.object({
  * @type {Record<keyof z.infer<typeof client> , unknown>}
  */
 const _clientEnv = {
-  APP_ENV,
+  APP_ENV: process.env.APP_ENV || 'development',
   NAME: NAME,
   SCHEME: SCHEME,
-  BUNDLE_ID: withEnvSuffix(BUNDLE_ID),
-  PACKAGE: withEnvSuffix(PACKAGE),
+  BUNDLE_ID: BUNDLE_ID,
+  PACKAGE: PACKAGE,
   VERSION: packageJSON.version,
 
   // ADD YOUR ENV VARS HERE TOO
-  API_URL: process.env.API_URL,
+  AUTH_URL: process.env.AUTH_URL,
   VAR_NUMBER: Number(process.env.VAR_NUMBER),
   VAR_BOOL: process.env.VAR_BOOL === 'true',
+  IP: process.env.IP,
+  EXPO_ACCOUNT_OWNER: process.env.EXPO_ACCOUNT_OWNER,
+  EAS_PROJECT_ID: process.env.EAS_PROJECT_ID,
 };
 
 /**
  * @type {Record<keyof z.infer<typeof buildTime> , unknown>}
  */
 const _buildTimeEnv = {
-  EXPO_ACCOUNT_OWNER,
-  EAS_PROJECT_ID,
+  EXPO_ACCOUNT_OWNER: process.env.EXPO_ACCOUNT_OWNER,
+  EAS_PROJECT_ID: process.env.EAS_PROJECT_ID,
   // ADD YOUR ENV VARS HERE TOO
   SECRET_KEY: process.env.SECRET_KEY,
 };
@@ -137,8 +127,8 @@ if (parsed.success === false) {
     '❌ Invalid environment variables:',
     parsed.error.flatten().fieldErrors,
 
-    `\n❌ Missing variables in .env.${APP_ENV} file, Make sure all required variables are defined in the .env.${APP_ENV} file.`,
-    `\n💡 Tip: If you recently updated the .env.${APP_ENV} file and the error still persists, try restarting the server with the -c flag to clear the cache.`
+    `\n❌ Missing variables in .env file, Make sure all required variables are defined in the .env file.`,
+    `\n💡 Tip: If you recently updated the .env file and the error still persists, try restarting the server with the -c flag to clear the cache.`
   );
   throw new Error(
     'Invalid environment variables, Check terminal for more details '
@@ -151,5 +141,4 @@ const ClientEnv = client.parse(_clientEnv);
 module.exports = {
   Env,
   ClientEnv,
-  withEnvSuffix,
 };

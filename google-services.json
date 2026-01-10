@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "559203751456",
+    "project_id": "danceschool-705eb",
+    "storage_bucket": "danceschool-705eb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559203751456:android:8d68300290cf4e31608e45",
+        "android_client_info": {
+          "package_name": "com.myexpo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEtSJ2T-c37rlIP-Ybiec1Td_aStfY93g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559203751456:android:25c8aba0a9b9180a608e45",
+        "android_client_info": {
+          "package_name": "com.myexpo.development"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEtSJ2T-c37rlIP-Ybiec1Td_aStfY93g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

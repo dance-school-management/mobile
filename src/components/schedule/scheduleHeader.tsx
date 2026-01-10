@@ -12,12 +12,12 @@ export default function ScheduleHeader({setCurrentDate, setMinDate, setMaxDate, 
     return (
         <View className="flex-none m-1">
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className='flex-none flex-row p-2' contentContainerStyle={{ paddingRight: 16 }}>
-                <Button size="sm" variant="solid" action="secondary" className="mr-2" onPress={() => {
-                    setActiveModal('filter');
-                }}>
-                    <ButtonText>Filter</ButtonText>
-                </Button>
-                <Divider orientation="vertical" className="bg-slate-900"/>
+                {/*<Button size="sm" variant="solid" action="secondary" className="mr-2" onPress={() => {*/}
+                {/*    setActiveModal('filter');*/}
+                {/*}}>*/}
+                {/*    <ButtonText>Filter</ButtonText>*/}
+                {/*</Button>*/}
+                {/*<Divider orientation="vertical" className="bg-slate-900"/>*/}
                 <Button size="sm" variant="solid" className="ml-2 mr-2" action={currentPressed === "today" ? "primary" : "secondary"} onPress={() => {
                     setMinDate(getDayStart(new Date()));
                     setMaxDate(getDayEnd(new Date()));
@@ -45,7 +45,7 @@ export default function ScheduleHeader({setCurrentDate, setMinDate, setMaxDate, 
                     setCurrentDate(current);
                     setCurrentPressed('thisWeek');
                 }}>
-                    <ButtonText>This week</ButtonText>
+                    <ButtonText>Week</ButtonText>
                 </Button>
                 <Button size="sm" variant="solid" className="ml-2 mr-2" action={currentPressed === "nextWeek" ? "primary" : "secondary"} onPress={() => {
                     const current = new Date();
