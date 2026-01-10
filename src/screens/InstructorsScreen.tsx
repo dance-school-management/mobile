@@ -9,11 +9,14 @@ import InstructorCard from '@/components/instructor/InstructorCard';
 import { Alert, AlertText } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { router } from 'expo-router';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function InstructorsScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [instructors, setInstructors] = useState<InstructorShort[]>([]);
+  const showToast = useAppToast();
 
   const fetchInstructors = async () => {
     try {
@@ -21,7 +24,7 @@ export default function InstructorsScreen() {
       const response = await api.get(API_PATHS.getInstructors);
       setInstructors(response.data.instructors);
     } catch (error) {
-      console.error('Error fetching instructors:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching instructors');
     } finally {
       setLoading(false);
     }

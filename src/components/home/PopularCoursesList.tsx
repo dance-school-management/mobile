@@ -6,6 +6,9 @@ import { API_PATHS, getApiUrl } from '@/util/endpoints';
 import { CourseProp } from '@/util/types/course';
 import CourseCard from '@/components/courses/CourseCard';
 import { router } from 'expo-router';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
+import { addMonths } from '@/util/dates';
 
 export default function PopularCoursesList({
   refreshKey,
@@ -14,21 +17,27 @@ export default function PopularCoursesList({
 }) {
   const [loading, setLoading] = useState(true);
   const [popularCourses, setPopularCourses] = useState<CourseProp[]>([]);
+  const showToast = useAppToast();
 
   const fetchPopularCourses = async () => {
     try {
       setLoading(true);
+
+      const now = new Date();
+      const startDateFrom = addMonths(now, -1).toISOString();
+      const startDateTo = addMonths(now, 1).toISOString();
+
       const response = await api.get(
         getApiUrl(API_PATHS.getMostPopularCourses, {
-          startDateFrom: '2025-01-01T00:00:00Z',
-          startDateTo: '2025-12-31T23:59:59Z',
+          startDateFrom,
+          startDateTo,
           topK: 3,
         })
       );
       const data = response.data;
       setPopularCourses(data);
     } catch (error) {
-      console.error('Error fetching popular courses:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching popular courses');
     } finally {
       setLoading(false);
     }

@@ -25,6 +25,8 @@ import {
   AlertDialogBody,
   AlertDialogBackdrop,
   Button } from '@/components/ui';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function BlogScreen() {
   const { blogId }  = useLocalSearchParams();
@@ -35,6 +37,7 @@ export default function BlogScreen() {
   // @ts-ignore
   const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
+  const showToast = useAppToast();
 
   const fetchBlog = async () => {
     try {
@@ -42,7 +45,7 @@ export default function BlogScreen() {
       const response = await api.get(`${API_PATHS.getBlogs}/${blogId}`);
       setBlog(response.data);
     } catch (error) {
-      console.error('Error fetching blog:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Failed to fetch blog.');
     } finally {
       setLoading(false);
     }
@@ -53,7 +56,7 @@ export default function BlogScreen() {
       await api.delete(`${API_PATHS.postBlog}/${blogId}`);
       router.push('/blogs');
     } catch (error) {
-      console.error('Error deleting blog:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Failed to delete blog.');
     } finally {
       setShowDeleteDialog(false);
     }
@@ -80,7 +83,7 @@ export default function BlogScreen() {
         });
       }
     } catch (error) {
-      console.error('Error toggling pin status:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Failed to toggle pin status.');
     } finally {
       fetchBlog();
     }

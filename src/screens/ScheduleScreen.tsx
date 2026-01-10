@@ -12,7 +12,8 @@ import EventDetails from '@/components/schedule/EventDetails';
 import SearchedEvents from '@/components/schedule/searchedEvents';
 import { CalendarEvent, ScheduleItemPersonal, ScheduleItem } from '@/util/types/schedule';
 import { API_PATHS } from '@/util/endpoints';
-
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function ScheduleScreen() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -25,6 +26,7 @@ export default function ScheduleScreen() {
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
   const [pressedEvent, setPressedEvent] = useState<CalendarEvent | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const showToast = useAppToast();
 
   const renderEvent = useCallback((event) => {
     return (
@@ -48,7 +50,7 @@ export default function ScheduleScreen() {
       });
       setEvents(formattedEvents);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching events');
     }
   };
 

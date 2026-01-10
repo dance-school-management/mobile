@@ -7,7 +7,8 @@ import { Alert } from '@/components/ui/alert';
 import { Button, ButtonText } from '@/components/ui/button';
 import api from '@/server/axios';
 import { API_PATHS, getApiUrl } from '@/util/endpoints';
-import { isAxiosError } from 'axios';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function QRScanner() {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -16,6 +17,7 @@ export default function QRScanner() {
   const [isValid, setIsValid] = useState<boolean>(false);
   const [showScanMessage, setShowScanMessage] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
+  const showToast = useAppToast();
 
   const [scanningEnabled, setScanningEnabled] = useState<boolean>(true);
   const [canRescan, setCanRescan] = useState<boolean>(true);
@@ -104,16 +106,8 @@ export default function QRScanner() {
       }
       setShowScanMessage(true);
     } catch (err: unknown) {
+      showToastErrorAxiosMessage(showToast, err, 'Error validating ticket');
       let serverMessage = 'Error validating ticket';
-
-      if (isAxiosError(err) && err.response && err.response.data) {
-        const data = err.response.data as { message?: string };
-        if (data.message) serverMessage = data.message;
-        console.error('Ticket validation error response:', data);
-      } else {
-        console.error('Unexpected error validating ticket:', err);
-      }
-
       setIsValid(false);
       setMessage(serverMessage);
       setShowScanMessage(true);
@@ -137,7 +131,7 @@ export default function QRScanner() {
           key={facing}
           style={StyleSheet.absoluteFill}
           facing={facing}
-          onCameraReady={() => { setReady(true); console.log('Camera ready'); }}
+          onCameraReady={() => setReady(true)}
           onMountError={(e) => console.warn('Camera mount error', e)}
           onBarcodeScanned={handleScan}
           barcodeScannerSettings={{ barcodeTypes: ['qr'] }}

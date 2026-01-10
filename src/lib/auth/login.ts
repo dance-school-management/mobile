@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '@/server/auth-client';
+import { authClient, setHasSessionMarker } from '@/server/auth-client';
 import { queryClient } from '@/app/_layout';
 import { useRouter } from 'expo-router';
 import { useAppToast } from '@/hooks/useAppToast';
@@ -38,6 +38,7 @@ export const useLoginMutation = () => {
       });
     },
     onSuccess: async () => {
+      await setHasSessionMarker(true);
       await queryClient.invalidateQueries({ queryKey: ['session'] });
     },
   });

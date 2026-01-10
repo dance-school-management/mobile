@@ -18,6 +18,8 @@ import { CourseProp, ClassProp } from '@/util/types/course';
 import CourseClasses from '@/components/courses/CourseClasses';
 import { usePayment } from '@/context/PaymentContext';
 import { router } from 'expo-router';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function CourseScreen() {
   const { courseId } = useLocalSearchParams();
@@ -27,6 +29,7 @@ export default function CourseScreen() {
   const [classes, setClasses] = useState<ClassProp[]>([]);
   const [groupNumbers, setGroupNumbers] = useState<number[]>([]);
   const { startPayment } = usePayment();
+  const showToast = useAppToast();
 
   const fetchCourseDetails = async () => {
     try {
@@ -36,7 +39,7 @@ export default function CourseScreen() {
       setClasses(response.data[0].classes);
       setGroupNumbers(response.data[0].classes.map((c: ClassProp) => c.groupNumber).filter((v: number, i: number, a: number[]) => a.indexOf(v) === i));
     } catch (error) {
-      console.error('Error fetching course details:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching course details');
     } finally {
       setLoading(false);
     }
@@ -59,14 +62,17 @@ export default function CourseScreen() {
         groupNumber: groupNumbers[0],
       })
       const { sessionUrl } = response.data;
-      console.log('Starting payment with session URL:', sessionUrl);
       if (!sessionUrl) return;
       startPayment(sessionUrl, () => {
-        console.log('Payment successful!');
+        showToast({
+          title: 'Enrollment Successful',
+          description: `You have successfully enrolled in ${course?.name}.`,
+          type: 'success',
+        })
         router.replace('/courses')
       });
     } catch (error) {
-      console.error('Error initiating enrollment:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error initiating enrollment');
     }
   }
 

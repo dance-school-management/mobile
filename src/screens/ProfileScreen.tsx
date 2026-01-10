@@ -11,24 +11,25 @@ import { API_PATHS } from '@/util/endpoints';
 import { DanceCategory } from '@/util/types/cms';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Button, ButtonIcon } from '@/components/ui/button';
-import { EditIcon } from '@/components/ui/icon'
+import { EditIcon } from '@/components/ui/icon';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [user, setUser] = useState<ProfileProps>();
   const [danceCategories, setDanceCategories] = useState<DanceCategory[]>([]);
+  const showToast = useAppToast();
 
   const fetchDanceCategories = async () => {
     try {
       setLoading(true);
       const response = await api.get(API_PATHS.getDanceCategories);
-      console.log(response);
       const data = response.data;
-      console.log('Dance Categories:', data);
       setDanceCategories(data);
     } catch (error) {
-      console.error('Error fetching dance categories:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching dance categories');
     } finally {
       setTimeout(() => setLoading(false), 200);
     }
@@ -37,11 +38,11 @@ export default function ProfileScreen() {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/profile/user/profile`);
+      const response = await api.get(API_PATHS.getProfile);
       const data = response.data;
       setUser(data.userData);
     } catch (error) {
-      console.error('Error fetching profile data:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching profile data');
     } finally {
       setTimeout(() => setLoading(false), 200);
     }

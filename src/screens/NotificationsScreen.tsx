@@ -7,6 +7,8 @@ import { Alert, AlertText, Skeleton, Box } from '@/components/ui';
 import NotificationDetails from '@/components/notification/notificationDetails';
 import { NotificationProp } from '@/util/types/notification';
 import { API_PATHS } from '@/util/endpoints';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function NotificationsScreen() {
   const [notifications, setNotifications] = useState<NotificationProp[]>([]);
@@ -18,6 +20,7 @@ export default function NotificationsScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const showToast = useAppToast();
 
   const fetchNotifications = async (targetPage: number) => {
     if (loading || (!hasMore && targetPage !== 1)) return;
@@ -40,7 +43,7 @@ export default function NotificationsScreen() {
       }
       setPage(targetPage);
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching notifications');
     } finally {
       setLoading(false);
       setRefreshing(false);

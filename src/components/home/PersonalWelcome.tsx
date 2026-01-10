@@ -8,6 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScheduleItemPersonal } from '@/util/types/schedule';
 import UpcomingClasses from '@/components/schedule/UpcomingClasses';
 import { getDateStart, getDateEnd } from '@/util/dates';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function PersonalWelcome({ refreshKey }: { refreshKey?: number }) {
   const [loading, setLoading] = useState(false);
@@ -16,6 +18,7 @@ export default function PersonalWelcome({ refreshKey }: { refreshKey?: number })
   const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
   const name = sessionData?.data?.user?.name || role;
   const [todayClasses, setTodayClasses] = useState<ScheduleItemPersonal[]>([]);
+  const showToast = useAppToast();
 
   const fetchTodayClasses = async () => {
     if (role !== 'STUDENT' && role !== 'INSTRUCTOR') return;
@@ -25,7 +28,7 @@ export default function PersonalWelcome({ refreshKey }: { refreshKey?: number })
       const data = response.data;
       setTodayClasses(data)
     } catch (error) {
-      console.error('Error fetching today classes:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Failed to fetch today\'s classes.');
     } finally {
       setLoading(false);
     }

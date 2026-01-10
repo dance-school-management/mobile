@@ -6,10 +6,13 @@ import api from '@/server/axios';
 import { API_PATHS } from '@/util/endpoints';
 import { Blog } from '@/util/types/blog';
 import BlogCard from '@/components/blog/BlogCard';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function PinnedBlogList({ refreshKey }: { refreshKey: number }) {
   const [loading, setLoading] = useState(true);
   const [blogs, setBlogs] = useState<Blog[]>([]);
+  const showToast = useAppToast();
 
   const fetchBlogs = async () => {
     try {
@@ -18,7 +21,7 @@ export default function PinnedBlogList({ refreshKey }: { refreshKey: number }) {
       const data = response.data;
       setBlogs(data.data);
     } catch (error) {
-      console.error('Error fetching blogs:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching blogs');
     } finally {
       setLoading(false);
     }

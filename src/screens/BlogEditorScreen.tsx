@@ -22,6 +22,8 @@ import {
 import api from "@/server/axios";
 import { API_PATHS } from "@/util/endpoints";
 import { router, useLocalSearchParams } from "expo-router";
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function BlogEditorScreen() {
   const { blogId } = useLocalSearchParams<{ blogId?: string }>();
@@ -32,6 +34,7 @@ export default function BlogEditorScreen() {
   const [tag, setTag] = useState<string>('');
   const [selection, setSelection] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
   const [loading, setLoading] = useState<boolean>(false);
+  const showToast = useAppToast();
 
   useEffect(() => {
     if (!blogId) return;
@@ -45,7 +48,7 @@ export default function BlogEditorScreen() {
         setContent(blogData.content);
         setTags(blogData.tags || []);
       } catch (error) {
-        console.error('Error fetching blog:', error);
+        showToastErrorAxiosMessage(showToast, error, 'Failed to fetch blog.');
       } finally {
         setLoading(false);
       }
@@ -130,7 +133,7 @@ export default function BlogEditorScreen() {
       }
       router.push('/blogs');
     } catch (error) {
-      console.error('Error publishing blog:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Failed to publish blog.');
     }
   };
 

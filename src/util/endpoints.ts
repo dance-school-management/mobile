@@ -46,6 +46,5 @@ export const getApiUrl = (
             url += `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
         })
     }
-    console.log(url)
     return url;
 };

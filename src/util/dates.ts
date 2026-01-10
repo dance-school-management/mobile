@@ -28,3 +28,9 @@ export function getDateEnd(date: Date) {
     newDate.setHours(23, 59, 59, 999);
     return newDate;
 }
+
+export function addMonths(date: Date, months: number) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+};

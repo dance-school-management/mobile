@@ -23,6 +23,8 @@ import BarChartComponent from '@/components/charts/BarChartComponent';
 import { getDateYearsAfter } from '@/util/dates';
 import { ScheduleItem } from '@/util/types/schedule';
 import InstructorClasses from '@/components/instructor/InstructorClasses'
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function InstructorProfileScreen() {
   const [loading, setLoading] = useState(false);
@@ -30,6 +32,7 @@ export default function InstructorProfileScreen() {
   const { instructorId } = useLocalSearchParams();
   const [instructor, setInstructor] = useState<Instructor>();
   const [instructorClasses, setInstructorClasses] = useState<ScheduleItem[]>([]);
+  const showToast = useAppToast();
 
   const fetchInstructorClasses = async () => {
     try {
@@ -37,7 +40,7 @@ export default function InstructorProfileScreen() {
       const data = response.data as ScheduleItem[];
       setInstructorClasses(data.filter(item => item.instructors.some(instr => instr.id === instructorId)));
     } catch (error) {
-      console.error('Error fetching instructor classes:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching instructor classes');
     }
   }
 
@@ -48,7 +51,7 @@ export default function InstructorProfileScreen() {
       setInstructor(response.data);
       await fetchInstructorClasses();
     } catch (error) {
-      console.error('Error fetching instructor:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching instructor details');
     } finally {
       setLoading(false);
     }

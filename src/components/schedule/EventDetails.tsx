@@ -19,7 +19,8 @@ import { CalendarEvent } from '@/util/types/schedule';
 import { usePayment } from '@/context/PaymentContext';
 import api from "@/server/axios";
 import {API_PATHS} from "@/util/endpoints";
-import {router} from "expo-router";
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 type EventDetailsProps = {
   event: CalendarEvent | null;
@@ -29,6 +30,8 @@ type EventDetailsProps = {
 
 export default function EventDetails({ event, visible, onClose }: EventDetailsProps) {
   if (!event) return null;
+
+  const showToast = useAppToast();
 
   const scheduleItem = event.scheduleItem;
 
@@ -58,19 +61,21 @@ export default function EventDetails({ event, visible, onClose }: EventDetailsPr
   const { startPayment } = usePayment();
 
   const handleBuyClick = async () => {
-    console.log('Initiating enrollment for class ID:', event.id);
     try {
       const response = await api.post(API_PATHS.postOrderClass, {
         classId: event.id
       });
       const { sessionUrl } = response.data;
-      console.log('Starting payment with session URL:', sessionUrl);
       if (!sessionUrl) return;
       startPayment(sessionUrl, () => {
-        console.log('Payment successful!');
+        showToast({
+          title: 'Payment Successful',
+          description: 'You have successfully enrolled in the class.',
+          type: 'success',
+        });
       });
     } catch (error) {
-      console.error('Error initiating enrollment:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error initiating enrollment');
     }
   };
 

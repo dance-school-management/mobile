@@ -11,6 +11,8 @@ import { BlogLight } from '@/util/types/blog';
 import BlogCard from '@/components/blog/BlogCard';
 import { router, useFocusEffect } from 'expo-router';
 import { useSessionQuery } from '@/lib/auth/session';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function BlogsScreen() {
   const [blogs, setBlogs] = useState<BlogLight[]>([]);
@@ -24,6 +26,7 @@ export default function BlogsScreen() {
   const { data: sessionData } = useSessionQuery();
   // @ts-ignore
   const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
+  const showToast = useAppToast();
 
   const buildQueryString = (pageToLoad: number) => {
     const params = new URLSearchParams({
@@ -59,7 +62,7 @@ export default function BlogsScreen() {
         setHasMore(true);
       }
     } catch (error) {
-      console.error('Error fetching blogs:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Failed to fetch blogs.');
     } finally {
       setLoading(false);
     }

@@ -13,6 +13,8 @@ import OnGoingCourses from '@/components/progress/OnGoingCourses';
 import LearntDanceCategories from '@/components/progress/LearntDanceCategories';
 import BarChartComponent from '@/components/charts/BarChartComponent';
 import { API_PATHS } from '@/util/endpoints';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
 
 export default function ProgressScreen() {
   const [loading, setLoading] = useState(false);
@@ -21,6 +23,7 @@ export default function ProgressScreen() {
   const [coursesAttendanceRates, setCoursesAttendanceRates] = useState<CourseAttendanceRatesProp[]>([]);
   const [hoursSpentPerDanceCategory, setHoursSpentPerDanceCategory] = useState<HoursSpentPerDanceCategoryProp[]>([]);
   const [hoursSpentPerInstructor, setHoursSpentPerInstructor] = useState<HoursSpentPerInstructorProp[]>([]);
+  const showToast = useAppToast();
 
   const hoursSpentTotal = hoursSpentPerDanceCategory.reduce((total, category) => total + category.spentHours, 0);
 
@@ -44,7 +47,7 @@ export default function ProgressScreen() {
       setHoursSpentPerDanceCategory(hoursDanceRes.data.spentHoursStatsList);
       setHoursSpentPerInstructor(hoursInstructorRes.data.spentHoursStatsList);
     } catch (error) {
-      console.error('Error fetching progress data:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching progress data');
     } finally {
       setLoading(false);
     }
