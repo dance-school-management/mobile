@@ -85,7 +85,7 @@ export default function LoginScreen() {
 
             <Box className="mt-2 justify-between items-center flex-row">
               <Button className="rounded-md" variant="link" onPress={() => router.push('/register')}>
-                <ButtonText>Don't have an account? Sign in</ButtonText>
+                <ButtonText>Don't have an account? Sign up</ButtonText>
               </Button>
               <Button className="rounded-md" size="sm" onPress={handleSubmit}>
                 <ButtonText>Submit</ButtonText>

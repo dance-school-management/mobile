@@ -2,26 +2,51 @@ import React, { useEffect, useState } from 'react';
 import api from '@/server/axios';
 import * as Notifications from 'expo-notifications';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Divider, Spinner, Switch, Text, VStack } from '@/components/ui';
-import { RefreshControl, ScrollView } from 'react-native';
+import {
+  Divider,
+  Spinner,
+  Switch,
+  Text,
+  VStack,
+} from '@/components/ui';
+import { RefreshControl, ScrollView, Linking } from 'react-native';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import Constants from 'expo-constants';
+import { useCameraPermissions } from 'expo-camera';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
+import { API_PATHS } from '@/util/endpoints';
+import AlertDialogDelete from '@/components/alert/AlertDialogDelete';
+import { useLogoutMutation } from '@/lib/auth/logout';
+import PasswordChangeModal from '@/components/settings/PasswordChangeModal';
+import { useFocusEffect } from 'expo-router';
+import { useSessionQuery } from '@/lib/auth/session';
 
 export default function SettingsScreen() {
-  const [enabledNotifications, setEnabledNotifications] = useState(false);
-  const [enabledPushNotifications, setEnabledPushNotifications] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [enabledNotifications, setEnabledNotifications] = useState<boolean>(false);
+  const [enabledPushNotifications, setEnabledPushNotifications] = useState<boolean>(false);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const showToast = useAppToast();
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState<boolean>(false);
+  const logoutMutation = useLogoutMutation();
+  const { data: sessionData } = useSessionQuery();
+  // @ts-ignore
+  const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
+
+  const cameraEnabled = cameraPermission?.granted ?? false;
 
   const fetchNotificationSettings = async () => {
     try {
-      const response = await api.get(`/notification/notification/status`)
+      const response = await api.get(API_PATHS.getNotificationRegistrationStatus)
       const data = response.data;
       setEnabledNotifications(data.hasEnabledNotifications);
       setEnabledPushNotifications(data.isRegisteredForPushNotifications);
     } catch (error) {
-      console.error('Error fetching notification.ts settings:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error fetching notification settings');
     } finally {
       setLoading(false);
     }
@@ -29,23 +54,23 @@ export default function SettingsScreen() {
 
   const updateNotifications = async () => {
     try {
-      const response = await api.post(`/notification/notification/toggle`, { enable: !enabledNotifications })
-      const data = response.data;
-      setEnabledNotifications(data.notificationsEnabilityStatus);
+      await api.post(API_PATHS.postToggleNotifications, { enable: !enabledNotifications })
       if (enabledPushNotifications && enabledNotifications) {
         updatePushNotifications();
       }
     } catch (error) {
-      console.error('Error updating notification.ts settings:', error);
+      showToastErrorAxiosMessage(showToast, error, 'Error updating notification settings');
+    } finally {
+      fetchNotificationSettings();
     }
   }
 
   const updatePushNotifications = async () => {
     if (enabledPushNotifications) {
       try {
-        await api.put(`/notification/notification/push/unregister`)
+        await api.put(API_PATHS.putUnregisterPushNotifications);
       } catch (error) {
-        console.error('Error unregistering from push notifications:', error);
+        showToastErrorAxiosMessage(showToast, error, 'Error unregistering for push notifications');
       }
     } else {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -55,24 +80,72 @@ export default function SettingsScreen() {
         finalStatus = status;
       }
       if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification.ts!');
+        showToast({
+          title: 'Push notification permission denied',
+          description: 'Cannot register for push notifications without permission.',
+          type: 'warning',
+        })
         return;
       }
       const token = (await Notifications.getExpoPushTokenAsync({
         projectId: Constants.expoConfig?.extra?.EAS_PROJECT_ID,
       })).data;
-      console.log(token);
       try {
-        await api.post(`/notification/notification/register`, { pushToken: token })
+        await api.post(API_PATHS.postRegisterPushNotifications, { pushToken: token })
       } catch (error) {
-        console.error('Error registering for push notifications:', error);
+        showToastErrorAxiosMessage(showToast, error, 'Error registering for push notifications');
       }
+    }
+    fetchNotificationSettings();
+  }
+
+  const handleCameraPermission = async (enable: boolean) => {
+    if (enable) {
+      try {
+        const res = await requestCameraPermission();
+        if (res?.status !== 'granted') {
+          showToast({
+            title: 'No access to camera',
+            description: 'Camera permission is required to enable camera features.',
+            type: 'warning',
+          })
+        }
+      } catch (err) {
+        showToast({
+          title: 'Error requesting camera permission',
+          type: 'error',
+        })
+      }
+    } else {
+      await Linking.openSettings();
+    }
+  }
+
+  const handleDeleteUser = async () => {
+    try {
+      await api.post(API_PATHS.deleteUser, {});
+      logoutMutation.mutate();
+      setTimeout(() => {
+        showToast({
+          title: 'Successfully deleted user',
+          description: 'User deleted',
+          type: 'success',
+        })
+      }, 200);
+    } catch (error) {
+      showToastErrorAxiosMessage(showToast, error, 'Error deleting user');
     }
   }
 
   useEffect(() => {
     fetchNotificationSettings();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchNotificationSettings();
+    }, [])
+  );
 
   const onRefresh = React.useCallback(() => {
     if (refreshing || loading) return;
@@ -106,30 +179,34 @@ export default function SettingsScreen() {
               </VStack>
             </Box>
           </Box>
-          <Box className="mb-2">
-            <Text className="text-lg font-medium mb-2">Camera Settings</Text>
-            <Divider />
-            <Box className="mt-2">
-              <VStack className="flex-row justify-between items-center">
-                <Text className="text-base">Enable Camera</Text>
-                <Switch value={true} onValueChange={() => {}}/>
-              </VStack>
+          {role !== 'STUDENT' && (
+            <Box className="mb-2">
+              <Text className="text-lg font-medium mb-2">Camera Settings</Text>
+              <Divider />
+              <Box className="mt-2">
+                <VStack className="flex-row justify-between items-center">
+                  <Text className="text-base">Enable Camera</Text>
+                  <Switch value={cameraEnabled} onValueChange={handleCameraPermission}/>
+                </VStack>
+              </Box>
             </Box>
-          </Box>
+          )}
           <Box className="mb-2">
             <Text className="text-lg font-medium mb-2">Profile Settings</Text>
             <Divider />
             <Box className="mt-2">
-                <Button size="sm" action="secondary" className="my-1" onPress={() => {}}>
-                  <ButtonText>Change Password</ButtonText>
-                </Button>
-                <Button size="sm" action="negative" className="my-1" onPress={() => {}}>
-                  <ButtonText>Delete Profile</ButtonText>
-                </Button>
+              <Button size="sm" action="secondary" className="my-1" onPress={() => setShowPasswordDialog(true)}>
+                <ButtonText>Change Password</ButtonText>
+              </Button>
+              <Button size="sm" action="negative" className="my-1" onPress={() => setShowDeleteDialog(true)}>
+                <ButtonText>Delete Profile</ButtonText>
+              </Button>
             </Box>
           </Box>
         </Box>
       </ScrollView>
+      <AlertDialogDelete isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} onConfirm={handleDeleteUser} title='Delete Profile' description='Are you sure you want to delete your profile? This action cannot be undone.' />
+      <PasswordChangeModal isOpen={showPasswordDialog} onClose={() => setShowPasswordDialog(false)} />
     </SafeAreaView>
   );
 }

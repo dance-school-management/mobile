@@ -24,7 +24,6 @@ import { BroadcastHistory } from '@/util/types/broadcast';
 import NotificationLogCard from '@/components/broadcasts/NotificationLogCard';
 import { useAppToast } from '@/hooks/useAppToast';
 import { showToastErrorAxiosMessage } from '@/util/errors';
-import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function BroadcastScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -108,12 +107,6 @@ export default function BroadcastScreen() {
         refreshing={refreshing}
         ListHeaderComponent={
           <Box className="p-1 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
-            <DateTimePicker value={dateFrom || new Date()} onChange={(event, selectedDate) => {
-              setDateFrom(selectedDate || dateFrom);
-            }} mode="date" display="default" />
-            <DateTimePicker value={dateTo || new Date()} onChange={(event, selectedDate) => {
-              setDateTo(selectedDate || dateTo);
-            }} mode="date" display="default" />
             <Checkbox
               value="Only My Broadcasts"
               className="flex-row items-center p-2"

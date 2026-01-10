@@ -15,11 +15,32 @@ import QRCode from 'react-qr-code';
 import { Box } from '@/components/ui/box';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TicketProp } from '@/util/types/ticket';
+import { useAppToast } from '@/hooks/useAppToast';
+import { showToastErrorAxiosMessage } from '@/util/errors';
+import api from '@/server/axios';
+import { API_PATHS } from '@/util/endpoints';
 
 export default function TicketDetails({ ticket, visible, onClose } : { ticket: TicketProp | null; visible: boolean; onClose: () => void}) {
   const insets = useSafeAreaInsets();
+  const showToast = useAppToast();
 
   if (!ticket) return null;
+
+  const handleRefund = async () => {
+    try {
+      const response = await api.post(API_PATHS.ticketRefund, {
+        qrCodeUUID: ticket.qrCodeUUID
+      });
+      showToast({
+        title: 'Refund Successful',
+        description: response.data.message ||  'Your ticket has been refunded successfully.',
+        type: 'success',
+      });
+      onClose();
+    } catch (error) {
+      showToastErrorAxiosMessage(showToast, error, 'Error processing refund');
+    }
+  }
 
   const date = new Date(ticket.startDate).toLocaleDateString();
   const startHour = new Date(ticket.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -84,9 +105,16 @@ export default function TicketDetails({ ticket, visible, onClose } : { ticket: T
             <Text className="text-center text-sm text-gray-600">
               QR UUID: {ticket.qrCodeUUID}
             </Text>
-            <Button variant="solid" action="primary" size="lg" className="w-full" onPress={onClose}>
-              <ButtonText>Close</ButtonText>
-            </Button>
+            <Box className="flex-row gap-2 w-full">
+              {(ticket.paymentStatus == 'PAID' || ticket.paymentStatus == 'PART_OF_COURSE') && ticket.attendanceStatus === 'ABSENT' && (
+                <Button className="flex-1" variant="outline" action="secondary" size="lg" onPress={handleRefund}>
+                  <ButtonText>Refund</ButtonText>
+                </Button>
+              )}
+              <Button className="flex-1" variant="solid" action="primary" size="lg" onPress={onClose}>
+                <ButtonText>Close</ButtonText>
+              </Button>
+            </Box>
           </ModalFooter>
       </ModalContent>
     </Modal>

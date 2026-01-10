@@ -240,9 +240,6 @@ const CustomDrawerContent = (props : any) => {
         label="Logout"
         onPress={() => {
           logoutMutation.mutate();
-          queryClient.removeQueries({ queryKey: ['session'], exact: true });
-          queryClient.setQueryData(['session'], null);
-          setTimeout(() => router.replace('/'), 500);
         }}
       />
     </DrawerContentScrollView>
