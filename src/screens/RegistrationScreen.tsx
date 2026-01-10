@@ -1,4 +1,3 @@
-// src/screens/RegistrationScreen.tsx
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native';

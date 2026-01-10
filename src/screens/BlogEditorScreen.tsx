@@ -122,6 +122,10 @@ export default function BlogEditorScreen() {
           tags,
           status: 'published',
         });
+        showToast({
+          title: 'Blog updated successfully.',
+          type: 'success',
+        });
       } else {
         await api.post(API_PATHS.postBlog, {
           title,
@@ -129,6 +133,10 @@ export default function BlogEditorScreen() {
           content,
           tags,
           status: 'published',
+        });
+        showToast({
+          title: 'Blog published successfully.',
+          type: 'success',
         });
       }
       router.push('/blogs');

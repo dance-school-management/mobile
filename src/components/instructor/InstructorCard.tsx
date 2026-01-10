@@ -9,7 +9,7 @@ import { Image } from "react-native";
 
 export default function InstructorCard({ instructor }: { instructor: InstructorShort }) {
     return (
-        <Card className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
+        <Card className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-md mt-1 mb-1">
             <Box className="flex-row items-center">
                 <Image
                     source={{ uri: `https://randomuser.me/api/portraits/men/${instructor?.id}.jpg` }}
@@ -22,8 +22,8 @@ export default function InstructorCard({ instructor }: { instructor: InstructorS
             <Text className="text-gray-600 mt-1">Specializations:</Text>
             {instructor.favouriteDanceCategories && instructor.favouriteDanceCategories.length > 0 && (
                 <Box className="flex-row flex-wrap mt-1">
-                    {instructor.favouriteDanceCategories.map((danceCategory) => (
-                        <Badge variant="outline" action="info" className="mr-2 mb-2 rounded-lg">
+                    {instructor.favouriteDanceCategories.map((danceCategory, index) => (
+                        <Badge key={`${index}-${danceCategory}`} variant="outline" action="info" className="mr-2 mb-2 rounded-lg">
                             <Text className="text-sm">{danceCategory}</Text>
                         </Badge>
                     ))}

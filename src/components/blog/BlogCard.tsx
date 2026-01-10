@@ -9,7 +9,7 @@ import { PinIcon } from "lucide-react-native";
 
 export default function BlogCard( {blog}: {blog: BlogLight}) {
   return (
-    <Card className="p-4 mb-4">
+    <Card className="p-4 mt-1 mb-1">
       <Box className="flex-row justify-between items-center mb-2">
         <Heading size="md" className="flex-1">
           {blog.title}
@@ -24,7 +24,7 @@ export default function BlogCard( {blog}: {blog: BlogLight}) {
       {blog.tags && blog.tags.length > 0 && (
         <Box className="flex-row flex-wrap mt-3">
           {blog.tags.map((tag) => (
-            <Badge key={tag} variant="outline" action="warning" className="mr-2 mb-2 rounded-lg">
+            <Badge key={tag} variant="outline" action="warning" className="mr-2 rounded-lg">
               <Text className="text-sm">{tag}</Text>
             </Badge>
           ))}

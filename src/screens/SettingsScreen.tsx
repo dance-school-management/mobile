@@ -231,7 +231,7 @@ export default function SettingsScreen() {
             </Box>
           </Box>
 
-          {role !== 'STUDENT' && (
+          {role === 'COORDINATOR' && (
             <Box className="mb-2">
               <Text className="text-lg font-medium mb-2">Camera Settings</Text>
               <Divider />

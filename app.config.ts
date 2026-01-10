@@ -56,7 +56,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "@react-native-community/datetimepicker",
     "expo-localization",
     "expo-secure-store",
-    "expo-web-browser"
+    "expo-web-browser",
+    "expo-brightness",
+    'expo-local-authentication'
   ],
   extra: {
     ...ClientEnv,

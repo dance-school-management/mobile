@@ -20,9 +20,13 @@ import { usePayment } from '@/context/PaymentContext';
 import { router } from 'expo-router';
 import { useAppToast } from '@/hooks/useAppToast';
 import { showToastErrorAxiosMessage } from '@/util/errors';
+import { useSessionQuery } from '@/lib/auth/session';
 
 export default function CourseScreen() {
   const { courseId } = useLocalSearchParams();
+  const { data: sessionData } = useSessionQuery();
+  // @ts-ignore
+  const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [course, setCourse] = useState<CourseProp>();
@@ -100,7 +104,7 @@ export default function CourseScreen() {
   return (
     <SafeAreaView className="flex-1" edges={['left', 'right']}>
       <ScrollView
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={{ padding: 8 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
@@ -119,9 +123,11 @@ export default function CourseScreen() {
               <Text className="text-md">Price: {course?.price}</Text>
             </Badge>
           </Box>
-          <Button action={!(course?.courseStatus === 'SALE') ? 'secondary' : 'positive'} className="mx-4" onPress={handleEnroll} disabled={!(course?.courseStatus === 'SALE')}>
-            <ButtonText>Enroll Now</ButtonText>
-          </Button>
+          {role === 'STUDENT' && (
+            <Button action={!(course?.courseStatus === 'SALE') ? 'secondary' : 'positive'} className="mx-4" onPress={handleEnroll} disabled={!(course?.courseStatus === 'SALE')}>
+              <ButtonText>Enroll Now</ButtonText>
+            </Button>
+          )}
           <CourseClasses classes={classes.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).slice(0,6)} />
         </Box>
       </ScrollView>

@@ -32,7 +32,9 @@ export const API_PATHS = {
     getNotificationLogs: '/notification/notification/management',
     getStudents: '/profile/search',
     deleteUser: '/auth/api/auth/delete-user',
-    ticketRefund: '/enroll/ticket/retrieve/refund'
+    ticketRefund: '/enroll/ticket/retrieve/refund',
+    cancelClass: '/product/cms/cancel/class',
+    postponeClass: '/product/cms/postpone/class'
 }
 
 export const getApiUrl = (

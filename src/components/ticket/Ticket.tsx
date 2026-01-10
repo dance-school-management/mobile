@@ -45,7 +45,7 @@ export default function Ticket({
       <Card
         size="md"
         variant="elevated"
-        className="my-1 mx-3"
+        className="mt-1 mb-1"
         style={styles.cardWrapper}
       >
         <View style={[styles.notch, styles.notchLeft]} />

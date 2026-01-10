@@ -89,6 +89,7 @@
     "cookie": "^1.0.2",
     "date-fns": "^4.1.0",
     "expo": "~54.0.31",
+    "expo-brightness": "~14.0.8",
     "expo-camera": "~17.0.10",
     "expo-constants": "~18.0.9",
     "expo-crypto": "~15.0.8",

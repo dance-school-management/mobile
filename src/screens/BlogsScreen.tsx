@@ -28,29 +28,41 @@ export default function BlogsScreen() {
   const role = (sessionData?.data?.user?.role as Role) || 'STUDENT';
   const showToast = useAppToast();
 
-  const buildQueryString = (pageToLoad: number) => {
+  const buildQueryString = (
+    pageToLoad: number,
+    overrides?: { titleQuery?: string; tagQuery?: string },
+  ) => {
+    const effectiveTitle = overrides?.titleQuery ?? titleQuery;
+    const effectiveTag = overrides?.tagQuery ?? tagQuery;
+
     const params = new URLSearchParams({
       page: pageToLoad.toString(),
       limit: limit.toString(),
     });
 
-    if (titleQuery.trim()) {
-      params.append('q', titleQuery.trim());
+    if (effectiveTitle.trim()) {
+      params.append('q', effectiveTitle.trim());
     }
 
-    if (tagQuery.trim()) {
-      params.append('tag', tagQuery.trim());
+    if (effectiveTag.trim()) {
+      params.append('tag', effectiveTag.trim());
     }
 
     return params.toString();
   };
 
-  const loadBlogs = async (pageToLoad: number, reset: boolean = false) => {
+  const loadBlogs = async (
+    pageToLoad: number,
+    reset: boolean = false,
+    overrides?: { titleQuery?: string; tagQuery?: string },
+  ) => {
     if (loading) return;
     setLoading(true);
 
     try {
-      const response = await api.get(`${API_PATHS.getBlogs}?${buildQueryString(pageToLoad)}`);
+      const response = await api.get(
+        `${API_PATHS.getBlogs}?${buildQueryString(pageToLoad, overrides)}`,
+      );
       const newBlogs: BlogLight[] = response.data.data;
 
       if (newBlogs.length === 0) {
@@ -73,6 +85,14 @@ export default function BlogsScreen() {
     return loadBlogs(page);
   };
 
+  const handleClearFilters = () => {
+    setTitleQuery('');
+    setTagQuery('');
+    setHasMore(true);
+    setPage(1);
+    loadBlogs(1, true, { titleQuery: '', tagQuery: '' });
+  };
+
   useEffect(() => {
     loadBlogs(1, true);
   }, []);
@@ -93,8 +113,32 @@ export default function BlogsScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
+      <Box className="p-2 bg-white dark:bg-gray-800 shadow-md">
+        <TextInput
+          value={titleQuery}
+          onChangeText={setTitleQuery}
+          placeholder="Filter by title"
+          autoCapitalize="none"
+          className="w-full rounded-md border border-gray-300 px-3 py-2"
+        />
+        <TextInput
+          value={tagQuery}
+          onChangeText={setTagQuery}
+          placeholder="Filter by tag"
+          autoCapitalize="none"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1"
+        />
+        <Box className="flex-row gap-2 justify-between mt-2">
+          <Button disabled={loading} onPress={() => loadBlogs(1, true)} className="flex-1 rounded-md">
+            <ButtonText>Apply Filters</ButtonText>
+          </Button>
+          <Button action="secondary" disabled={loading} onPress={handleClearFilters} className="flex-1 rounded-md">
+            <ButtonText>Clear Filters</ButtonText>
+          </Button>
+        </Box>
+      </Box>
       <FlatList
-        className="flex-1 mt-2 px-4"
+        className="flex-1 px-2"
         data={blogs}
         renderItem={({ item }) => (
           <Pressable onPress={() => router.push(`/blog/${item.id}`)}>
@@ -106,33 +150,6 @@ export default function BlogsScreen() {
         onEndReachedThreshold={0.5}
         onRefresh={onRefresh}
         refreshing={refreshing}
-        ListHeaderComponent={
-          <Box className="p-1 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
-            <TextInput
-              value={titleQuery}
-              onChangeText={setTitleQuery}
-              placeholder="Filter by title"
-              autoCapitalize="none"
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-            <TextInput
-              value={tagQuery}
-              onChangeText={setTagQuery}
-              placeholder="Filter by tag"
-              autoCapitalize="none"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1"
-            />
-            <Button
-              disabled={loading}
-              onPress={() => loadBlogs(1, true)}
-              className="mt-1 rounded-md"
-            >
-              <ButtonText>
-                Apply Filters
-              </ButtonText>
-            </Button>
-          </Box>
-        }
         ListEmptyComponent={() => {
           if (loading) return null;
           return (

@@ -54,6 +54,10 @@ export default function BlogScreen() {
   const handleDelete = async () => {
     try {
       await api.delete(`${API_PATHS.postBlog}/${blogId}`);
+      showToast({
+        title: 'Blog deleted successfully.',
+        type: 'success',
+      })
       router.push('/blogs');
     } catch (error) {
       showToastErrorAxiosMessage(showToast, error, 'Failed to delete blog.');
@@ -66,6 +70,10 @@ export default function BlogScreen() {
     try {
       if (blog?.isPinned) {
         await api.patch(`blog/posts/${blogId}/unpin`);
+        showToast({
+          title: 'Blog unpinned successfully.',
+          type: 'success',
+        })
       } else {
         const now = new Date();
         const pinnedUntil = new Date(
@@ -80,6 +88,10 @@ export default function BlogScreen() {
 
         await api.patch(`blog/posts/${blogId}/pin`, {
           pinnedUntil,
+        });
+        showToast({
+          title: 'Blog pinned successfully.',
+          type: 'success',
         });
       }
     } catch (error) {

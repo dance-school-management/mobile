@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Alert } from '@/components/ui/alert';
 import { Button, ButtonText } from '@/components/ui/button';
 import api from '@/server/axios';
 import { API_PATHS, getApiUrl } from '@/util/endpoints';
@@ -13,10 +12,8 @@ import { showToastErrorAxiosMessage } from '@/util/errors';
 export default function QRScanner() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [ready, setReady] = useState(false);
   const [isValid, setIsValid] = useState<boolean>(false);
   const [showScanMessage, setShowScanMessage] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
   const showToast = useAppToast();
 
   const [scanningEnabled, setScanningEnabled] = useState<boolean>(true);
@@ -96,28 +93,51 @@ export default function QRScanner() {
 
     try {
       const response = await api.get(getApiUrl(API_PATHS.getTicketValidation, { qrCodeUUID: event.data }));
-      const code = response.status;
-      if (code === 200) {
-        setIsValid(true);
-        setMessage('Valid ticket');
-      } else {
+      const attendanceStatus = response.data.attendanceStatus;
+      if (attendanceStatus === 'PRESENT') {
+        showToast({
+          title: 'This ticket is used',
+          description: `Ticket for ${response.data.name} has already been used.`,
+          type: 'warning',
+        });
         setIsValid(false);
-        setMessage('Invalid ticket');
+      } else {
+        showToast({
+          title: response.data.message,
+          description: `Ticket for ${response.data.name} is valid.`,
+          type: 'success',
+        })
+        setIsValid(true);
       }
       setShowScanMessage(true);
     } catch (err: unknown) {
       showToastErrorAxiosMessage(showToast, err, 'Error validating ticket');
-      let serverMessage = 'Error validating ticket';
       setIsValid(false);
-      setMessage(serverMessage);
-      setShowScanMessage(true);
     }
   };
+
+  const handleMarkAttendance = async () => {
+    try {
+      const response = await api.put(getApiUrl(API_PATHS.getTicketValidation), {
+        qrCodeUUID: lastScanRef.current,
+      });
+      showToast({
+        title: response.data.message,
+        description: `Attendance marked successfully.`,
+        type: 'success',
+      });
+      setIsValid(true);
+    } catch (err: unknown) {
+      showToastErrorAxiosMessage(showToast, err, 'Error marking attendance');
+      setIsValid(false);
+    } finally {
+      handleScanAgain()
+    }
+  }
 
   const handleScanAgain = () => {
     if (!canRescan) return;
     setShowScanMessage(false);
-    setMessage('');
     setIsValid(false);
     lastScanRef.current = null;
     setScanningEnabled(true);
@@ -131,23 +151,19 @@ export default function QRScanner() {
           key={facing}
           style={StyleSheet.absoluteFill}
           facing={facing}
-          onCameraReady={() => setReady(true)}
-          onMountError={(e) => console.warn('Camera mount error', e)}
+          onMountError={(e) => showToast({ title: 'Camera Error', description: e.message, type: 'error' })}
           onBarcodeScanned={handleScan}
           barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
         />
 
         {showScanMessage && (
-          <View pointerEvents="none" className="absolute top-4 left-4 right-4">
-            <Alert variant="outline" action={isValid ? 'success' : 'error'}>
-              <Text className="text-typography-950">{message}</Text>
-            </Alert>
-          </View>
-        )}
-
-        {showScanMessage && (
-          <View className="absolute bottom-6 left-4 right-4 items-center">
-            <Button onPress={handleScanAgain} disabled={!canRescan}>
+          <View className="absolute bottom-6 left-4 right-4 items-center flex-row justify-between gap-2">
+            {isValid && (
+              <Button action="positive" className="flex-1" onPress={handleMarkAttendance}>
+                <ButtonText>Mark Attendance</ButtonText>
+              </Button>
+            )}
+            <Button onPress={handleScanAgain} className="flex-1" disabled={!canRescan}>
               <ButtonText>
                 {canRescan ? 'Scan again' : `Wait ${cooldownRemaining}s`}
               </ButtonText>

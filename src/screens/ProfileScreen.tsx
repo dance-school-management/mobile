@@ -10,8 +10,6 @@ import { Image, RefreshControl } from 'react-native';
 import { API_PATHS } from '@/util/endpoints';
 import { DanceCategory } from '@/util/types/cms';
 import { Badge, BadgeText } from '@/components/ui/badge';
-import { Button, ButtonIcon } from '@/components/ui/button';
-import { EditIcon } from '@/components/ui/icon';
 import { useAppToast } from '@/hooks/useAppToast';
 import { showToastErrorAxiosMessage } from '@/util/errors';
 
@@ -101,11 +99,6 @@ export default function ProfileScreen() {
               <BadgeText>{dc.name}</BadgeText>
             </Badge>
           ))}
-          </Box>
-          <Box className="flex-row justify-end mt-1">
-            <Button size="lg" className="rounded-full p-3.5">
-              <ButtonIcon as={EditIcon} />
-            </Button>
           </Box>
         </Box>
       </ScrollView>

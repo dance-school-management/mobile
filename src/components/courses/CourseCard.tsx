@@ -6,10 +6,9 @@ import { router } from 'expo-router';
 export default function CourseCard({ course }: { course: CourseProp }) {
     return (
         <Pressable onPress={() => {router.push(`/course/${course.id}`)}}>
-            <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
+            <Box className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mt-1 mb-1">
                 <Text className="text-xl font-bold mb-1">{course.name}</Text>
                 <Text className="text-gray-600 mb-1">{course.description.slice(0, 200)}...</Text>
-                {/*<Text className="text-gray-600 mb-2">Instructors: {course.instructors.join(', ')}</Text>*/}
                 <Box className="flex-row flex-wrap justify-between mb-2">
                     <Badge variant="outline" action={course.courseStatus === 'SALE' ? 'success' : (course.courseStatus === 'ONGOING' ? 'warning' : 'muted')} className="mr-2 rounded-lg">
                         <Text className="text-sm">{course.courseStatus}</Text>
